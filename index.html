@@ -142,11 +142,13 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
 .distance-label { font-size: 13px; color: var(--text-muted); }
 .distance-val { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--text); }
 .points-earned { border-radius: 14px; padding: 18px; text-align: center; }
+.points-earned.gold-score { background: rgba(255,214,0,0.08); border: 1.5px solid rgba(255,214,0,0.2); }
 .points-earned.great { background: rgba(0,230,118,0.08); border: 1.5px solid var(--green-border); }
 .points-earned.good { background: rgba(255,214,0,0.08); border: 1.5px solid rgba(255,214,0,0.2); }
 .points-earned.ok { background: var(--surface2); border: 0.5px solid var(--border2); }
 .points-label { font-size: 12px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
 .points-val { font-family: 'Bebas Neue', sans-serif; font-size: 64px; line-height: 1; letter-spacing: 2px; }
+.points-val.gold-score { color: var(--gold); }
 .points-val.great { color: var(--green); }
 .points-val.good { color: var(--gold); }
 .points-val.ok { color: var(--text-muted); }
@@ -252,6 +254,7 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
 .hist-divider { font-size: 16px; color: var(--border2); }
 .hist-score { text-align: right; flex-shrink: 0; width: 52px; }
 .hist-score-num { font-family: 'Bebas Neue', sans-serif; font-size: 20px; }
+.hist-score-num.gold-score { color: var(--gold); }
 .hist-score-num.great { color: var(--green); }
 .hist-score-num.good { color: var(--gold); }
 .hist-score-num.ok { color: var(--text-muted); }
@@ -398,6 +401,20 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
   <div id="tab-history" style="display:none;">
     <div id="history-streak"></div>
     <div id="history-list" class="hist-list"><div class="loading-screen"><div class="spinner"></div></div></div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:20px;padding:14px 0;margin-top:8px;">
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-dim);">
+        <div style="width:10px;height:10px;border-radius:50%;background:var(--gold);flex-shrink:0;"></div>
+        Within 5 pts
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-dim);">
+        <div style="width:10px;height:10px;border-radius:50%;background:var(--green);flex-shrink:0;"></div>
+        Within 10 pts
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-dim);">
+        <div style="width:10px;height:10px;border-radius:50%;background:var(--text-dim);flex-shrink:0;"></div>
+        10+ pts off
+      </div>
+    </div>
   </div>
 
   <!-- PROFILE TAB -->
@@ -464,7 +481,7 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
       <div class="sc-pts"><div class="sc-pts-label">Points Earned</div><div class="sc-pts-val" id="sc-pts"></div></div>
     </div>
     <div class="sc-footer">
-      <div class="sc-cta">Think you can beat me? Play at <strong>bethebook.gg</strong></div>
+      <div class="sc-cta">Think you can beat me? Play at <strong>DGFantasy.com/BeTheBook</strong></div>
       <div class="sc-url">dgfantasy.com</div>
     </div>
   </div>
@@ -809,7 +826,7 @@ function renderResult(player, pick) {
   const actual = player.actual_score;
   const dist = Math.abs(actual - pick.line_submitted);
   const pts = Math.max(0, 100 - dist);
-  const ptsClass = pts >= 95 ? 'great' : pts >= 85 ? 'good' : 'ok';
+  const ptsClass = pts >= 95 ? 'gold-score' : pts >= 90 ? 'great' : 'ok';
 
   resultData = { pts, dist, pick, player };
   updateHeaderBadge();
@@ -1107,7 +1124,7 @@ async function loadHistory() {
         </div>`;
     }
 
-    const scoreClass = pick.score >= 95 ? 'great' : pick.score >= 85 ? 'good' : 'ok';
+    const scoreClass = pick.score >= 95 ? 'gold-score' : pick.score >= 90 ? 'great' : 'ok';
     const actualScore = pick.score !== null && pick.distance !== null ? (100 - pick.score + pick.line_submitted).toFixed(0) : '—';
     return `
       <div class="hist-row" onclick="showHistModal(${idx})">
@@ -1156,7 +1173,7 @@ function showHistModal(idx) {
   const actual = (100 - pick.score + pick.line_submitted);
   const dist = pick.distance;
   const pts = pick.score;
-  const ptsClass = pts >= 95 ? 'great' : pts >= 85 ? 'good' : 'ok';
+  const ptsClass = pts >= 95 ? 'gold-score' : pts >= 90 ? 'great' : 'ok';
 
   const overlay = document.createElement('div');
   overlay.className = 'hist-modal-overlay';
@@ -1225,7 +1242,7 @@ async function generateShare() {
       if(navigator.share && navigator.canShare) {
         const file = new File([blob], 'be-the-book.png', { type: 'image/png' });
         if(navigator.canShare({ files: [file] })) {
-          try { await navigator.share({ files: [file], title: 'Be The Book', text: `Can you beat my line? Play at bethebook.gg` }); return; } catch(e) {}
+          try { await navigator.share({ files: [file], title: 'Be The Book', text: `Can you beat my line? Play at DGFantasy.com/BeTheBook` }); return; } catch(e) {}
         }
       }
       const url = URL.createObjectURL(blob);

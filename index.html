@@ -464,6 +464,27 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
 </div>
 
 <!-- HIDDEN SHARE CARD -->
+<div class="share-card-wrap" id="pregame-card-wrap">
+  <div class="share-card" id="pregame-card">
+    <div class="sc-header">
+      <div><div class="sc-logo">BE THE <span>BOOK</span></div><div class="sc-sub">by Daily Grind Fantasy</div></div>
+      <div class="sc-date" id="pg-date"></div>
+    </div>
+    <div class="sc-player" id="pg-player"></div>
+    <div class="sc-matchup" id="pg-matchup"></div>
+    <div style="background:#13131a;border-radius:16px;padding:24px;text-align:center;margin-bottom:20px;">
+      <div style="font-size:11px;color:rgba(240,240,245,0.3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;">I set tonight's line at</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:80px;color:#00e676;letter-spacing:2px;line-height:1;" id="pg-line"></div>
+      <div style="font-size:12px;color:rgba(240,240,245,0.4);margin-top:8px;" id="pg-books"></div>
+    </div>
+    <div style="font-size:13px;color:rgba(240,240,245,0.5);text-align:center;margin-bottom:20px;">What's your line? 👀</div>
+    <div class="sc-footer">
+      <div class="sc-cta">Play at <strong>DGFantasy.com/BeTheBook</strong></div>
+      <div class="sc-url">dgfantasy.com</div>
+    </div>
+  </div>
+</div>
+
 <div class="share-card-wrap" id="share-card-wrap">
   <div class="share-card" id="share-card">
     <div class="sc-header">
@@ -756,7 +777,10 @@ function renderTodayCard(player, pick) {
       <div class="submitted-num" id="submitted-num">${lineValue.toFixed(1)}</div>
       <div class="submitted-label">Your line for ${player.player_name}</div>
       <div class="submitted-sub">Result revealed after the game.<br>FanDuel: ${player.fd_line} · DraftKings: ${player.dk_line}</div>
-      <button class="change-btn" onclick="changeLine()">Change my line</button>
+      <div style="display:flex;gap:10px;justify-content:center;margin-top:4px;">
+        <button class="change-btn" onclick="changeLine()">Change my line</button>
+        <button class="change-btn" style="color:var(--green);border-color:var(--green-border);" onclick="sharePreGame()">Share my pick</button>
+      </div>
     </div>
   `;
 
@@ -1224,6 +1248,54 @@ async function generateHistShare(idx, actual) {
   document.getElementById('sc-dist').textContent = pick.distance.toFixed(1) + ' off';
   document.getElementById('sc-pts').textContent = pick.score.toFixed(1) + ' pts';
   await generateShare();
+}
+
+async function sharePreGame() {
+  if(!todayPlayer) return;
+  const pick = todayPick;
+  if(!pick) return;
+
+  const line = pick.line_submitted || lineValue;
+  document.getElementById('pg-date').textContent = formatDate(todayPlayer.date) + ' · NBA';
+  document.getElementById('pg-player').textContent = todayPlayer.player_name;
+  document.getElementById('pg-matchup').textContent = todayPlayer.player_team + ' vs ' + todayPlayer.opponent;
+  document.getElementById('pg-line').textContent = line.toFixed(1);
+  document.getElementById('pg-books').textContent = 'FanDuel: ' + todayPlayer.fd_line + ' · DraftKings: ' + todayPlayer.dk_line;
+
+  const overlay = document.getElementById('generating');
+  overlay.style.display = 'flex';
+
+  try {
+    const wrap = document.getElementById('pregame-card-wrap');
+    const card = document.getElementById('pregame-card');
+    wrap.style.position = 'static';
+    wrap.style.left = '0';
+
+    const canvas = await html2canvas(card, { backgroundColor: '#0b0b0f', scale: 2, useCORS: true, logging: false });
+
+    wrap.style.position = 'fixed';
+    wrap.style.left = '-9999px';
+
+    canvas.toBlob(async (blob) => {
+      overlay.style.display = 'none';
+      if(navigator.share && navigator.canShare) {
+        const file = new File([blob], 'be-the-book-pick.png', { type: 'image/png' });
+        if(navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({ files: [file], title: 'Be The Book', text: `I set ${todayPlayer.player_name} at ${line.toFixed(1)} tonight. What's your line? Play at DGFantasy.com/BeTheBook` });
+            return;
+          } catch(e) {}
+        }
+      }
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'be-the-book-pick.png'; a.click();
+      URL.revokeObjectURL(url);
+    }, 'image/png');
+  } catch(err) {
+    overlay.style.display = 'none';
+    alert('Could not generate share card.');
+  }
 }
 
 async function generateShare() {

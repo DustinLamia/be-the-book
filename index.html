@@ -985,6 +985,27 @@ async function submitLine() {
 
   todayPick = { line_submitted: lineValue };
 
+  // Update streak
+  const lastPickDate = currentUserData?.last_pick_date;
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yesterdayStr = yesterday.toISOString().split('T')[0];
+  const newStreak = (lastPickDate === yesterdayStr || lastPickDate === today)
+    ? (currentUserData?.current_streak || 0) + (lastPickDate === today ? 0 : 1)
+    : 1;
+  const longestStreak = Math.max(newStreak, currentUserData?.longest_streak || 0);
+  const trialUnlocked = newStreak >= 7 || currentUserData?.trial_unlocked || false;
+
+  await sb.from('users').update({
+    current_streak: newStreak,
+    longest_streak: longestStreak,
+    last_pick_date: today,
+    trial_unlocked: trialUnlocked
+  }).eq('id', currentUser.id);
+
+  currentUserData = { ...currentUserData, current_streak: newStreak, longest_streak: longestStreak, last_pick_date: today, trial_unlocked: trialUnlocked };
+  updateHeaderBadge();
+
   // Show submitted state
   const inputWrap = document.getElementById('input-wrap');
   const submittedWrap = document.getElementById('submitted-wrap');
@@ -992,6 +1013,11 @@ async function submitLine() {
   if(inputWrap) inputWrap.style.display = 'none';
   if(submittedWrap) submittedWrap.style.display = 'block';
   if(submittedNum) submittedNum.textContent = lineValue.toFixed(1);
+
+  // If trial just unlocked show a quick message
+  if(trialUnlocked && !currentUserData?.trial_unlocked) {
+    setTimeout(() => alert('🎉 7 Day Streak! Your free Daily Grind Fantasy trial is unlocked. Check the History tab to claim it.'), 500);
+  }
 }
 
 function changeLine() {
@@ -1112,18 +1138,25 @@ async function loadHistory() {
       </div>`;
   } else if(streak > 0) {
     const daysLeft = 7 - streak;
+    const progress = Math.round((streak / 7) * 100);
     streakEl.innerHTML = `
       <div class="streak-bar">
-        <div class="streak-title">🔥 ${streak} Day Streak${daysLeft > 0 ? ` — ${daysLeft} Day${daysLeft !== 1 ? 's' : ''} to Go` : '!'}</div>
-        <div class="streak-sub">${daysLeft > 0 ? `Play ${daysLeft} more day${daysLeft !== 1 ? 's' : ''} in a row to unlock a free 7-day Daily Grind Fantasy trial.` : 'Keep it going!'}</div>
-        <a href="https://dgfantasy.com" target="_blank" class="streak-cta">Try DGFantasy Free →</a>
+        <div class="streak-title">🔥 ${streak} Day Streak — ${daysLeft} Day${daysLeft !== 1 ? 's' : ''} to Go</div>
+        <div class="streak-sub">Play ${daysLeft} more day${daysLeft !== 1 ? 's' : ''} in a row to unlock a free 7-day Daily Grind Fantasy trial.</div>
+        <div style="background:rgba(255,255,255,0.08);border-radius:20px;height:6px;margin-top:12px;overflow:hidden;">
+          <div style="background:var(--gold);height:100%;border-radius:20px;width:${progress}%;transition:width 0.5s ease;"></div>
+        </div>
+        <div style="font-size:11px;color:rgba(255,214,0,0.5);margin-top:6px;text-align:center;">${streak} of 7 days</div>
       </div>`;
   } else {
     streakEl.innerHTML = `
       <div class="streak-bar">
         <div class="streak-title">Start Your Streak</div>
         <div class="streak-sub">Play 7 days in a row to unlock a free Daily Grind Fantasy trial.</div>
-        <a href="https://dgfantasy.com" target="_blank" class="streak-cta">Try DGFantasy →</a>
+        <div style="background:rgba(255,255,255,0.08);border-radius:20px;height:6px;margin-top:12px;overflow:hidden;">
+          <div style="background:var(--gold);height:100%;border-radius:20px;width:0%;"></div>
+        </div>
+        <div style="font-size:11px;color:rgba(255,214,0,0.5);margin-top:6px;text-align:center;">0 of 7 days</div>
       </div>`;
   }
 

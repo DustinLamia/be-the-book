@@ -28,8 +28,8 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
 .header { flex-shrink: 0; background: var(--surface); border-bottom: 0.5px solid var(--border); padding: 12px 20px; padding-top: max(12px, env(safe-area-inset-top)); display: flex; align-items: center; justify-content: space-between; }
 .logo-mark { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 1.5px; line-height: 1; color: var(--text); }
 .logo-mark span { color: var(--green); }
-.logo-sub { font-size: 11px; color: var(--green); letter-spacing: 0.3px; margin-top: 1px; font-weight: 500; }
-.logo-sub .by { color: var(--text-muted); }
+.logo-sub { font-size: 11px; letter-spacing: 0.3px; margin-top: 1px; font-weight: 500; }
+.logo-sub .by { color: var(--text); }
 .streak-badge { background: var(--gold-dim); border: 0.5px solid rgba(255,214,0,0.25); border-radius: 20px; padding: 6px 14px; font-size: 13px; color: var(--gold); font-weight: 600; }
 .score-chip { background: var(--green-dim); border: 0.5px solid var(--green-border); border-radius: 20px; padding: 6px 14px; font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--green); }
 
@@ -48,9 +48,9 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
 .auth-screen { padding: 40px 24px; text-align: center; }
 .auth-logo { font-family: 'Bebas Neue', sans-serif; font-size: 48px; letter-spacing: 2px; color: var(--text); margin-bottom: 4px; }
 .auth-logo span { color: var(--green); }
-.auth-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 8px; }
+.auth-sub { font-size: 13px; color: var(--text); margin-bottom: 8px; }
 .auth-sub .by { color: var(--text-dim); }
-.auth-tagline { font-size: 15px; color: var(--text-muted); margin-bottom: 32px; line-height: 1.5; }
+.auth-tagline { font-size: 15px; color: var(--text); margin-bottom: 32px; line-height: 1.5; }
 .auth-tabs { display: flex; background: var(--surface); border-radius: 12px; padding: 3px; margin-bottom: 20px; }
 .auth-tab { flex: 1; text-align: center; padding: 9px; font-size: 13px; font-weight: 500; color: var(--text-muted); border-radius: 10px; cursor: pointer; }
 .auth-tab.active { background: var(--green); color: #0b0b0f; font-weight: 600; }
@@ -283,7 +283,7 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
 .sc-logo { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 1px; color: #f0f0f5; }
 .sc-logo span { color: #00e676; }
 .sc-sub { font-size: 10px; color: #00e676; margin-top: 2px; }
-.sc-sub .by { color: rgba(240,240,245,0.5); }
+.sc-sub .by { color: rgba(240,240,245,0.9); }
 .sc-date { font-size: 11px; color: rgba(240,240,245,0.3); text-align: right; }
 .sc-player { font-family: 'Bebas Neue', sans-serif; font-size: 32px; letter-spacing: 0.5px; color: #f0f0f5; margin-bottom: 4px; }
 .sc-matchup { font-size: 13px; color: rgba(240,240,245,0.5); margin-bottom: 24px; }
@@ -331,7 +331,7 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
 <div class="header" id="header">
   <div>
     <div class="logo-mark">BE THE <span>BOOK</span></div>
-    <div class="logo-sub"><span class="by">by</span> Daily Grind Fantasy</div>
+    <div class="logo-sub"><span class="by">by</span> <a href="https://dgfantasy.com" target="_blank" style="color:var(--green);text-decoration:none;font-weight:500;">Daily Grind Fantasy</a></div>
   </div>
   <div id="header-badge"></div>
 </div>
@@ -343,7 +343,7 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
   <div id="screen-auth" style="display:none;">
     <div class="auth-screen">
       <div class="auth-logo">BE THE <span>BOOK</span></div>
-      <div class="auth-sub"><span class="by">by</span> Daily Grind Fantasy</div>
+      <div class="auth-sub">by <a href="https://dgfantasy.com" target="_blank" style="color:var(--green);text-decoration:none;font-weight:500;">Daily Grind Fantasy</a></div>
       <div class="auth-tagline">Set the line. Beat the crowd.<br>Play daily. Win monthly.</div>
       <div class="auth-tabs">
         <div class="auth-tab active" id="auth-tab-login" onclick="switchAuthTab('login')">Sign In</div>

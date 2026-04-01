@@ -312,6 +312,14 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
 @keyframes spin { to { transform: rotate(360deg); } }
 .loading-text { font-size: 13px; color: var(--text-dim); }
 
+
+/* HISTORY MODAL */
+.hist-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200; display: flex; align-items: flex-end; justify-content: center; animation: fadeIn 0.2s ease; }
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+.hist-modal { background: var(--surface); border-radius: 20px 20px 0 0; width: 100%; max-width: 480px; padding: 20px 16px 40px; animation: slideUp 0.25s ease; max-height: 90vh; overflow-y: auto; }
+@keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+.hist-modal-handle { width: 36px; height: 4px; background: var(--border2); border-radius: 2px; margin: 0 auto 20px; }
+.hist-modal-close { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--text-dim); font-size: 20px; cursor: pointer; }
 /* GENERATING */
 .generating { position: fixed; inset: 0; background: rgba(11,11,15,0.9); display: none; flex-direction: column; align-items: center; justify-content: center; gap: 14px; z-index: 999; }
 .gen-text { font-size: 14px; color: var(--text-muted); }
@@ -931,10 +939,8 @@ async function submitLine() {
 }
 
 function changeLine() {
-  const inputWrap = document.getElementById('input-wrap');
-  const submittedWrap = document.getElementById('submitted-wrap');
-  if(inputWrap) inputWrap.style.display = 'block';
-  if(submittedWrap) submittedWrap.style.display = 'none';
+  todayPick = null;
+  renderTodayCard(todayPlayer, null);
 }
 
 function isPickLocked(player) {
@@ -1099,14 +1105,16 @@ async function loadHistory() {
     }
 
     const scoreClass = pick.score >= 95 ? 'great' : pick.score >= 85 ? 'good' : 'ok';
+    const actualScore = pick.score !== null && pick.distance !== null ? (100 - pick.score + pick.line_submitted).toFixed(0) : '—';
+    const pickJson = encodeURIComponent(JSON.stringify(pick));
     return `
-      <div class="hist-row">
+      <div class="hist-row" onclick="showHistModal(${pickJson})">
         <div class="hist-date">${month}<br>${day}</div>
-        <div class="hist-player"><div class="hist-name">${pick.player_name}</div></div>
+        <div class="hist-player"><div class="hist-name">${pick.player_name}</div><div class="hist-meta">Tap to view result</div></div>
         <div class="hist-nums">
           <div class="hist-num"><div class="hist-num-val">${pick.line_submitted.toFixed(1)}</div><div class="hist-num-label">your line</div></div>
           <div class="hist-divider">→</div>
-          <div class="hist-num"><div class="hist-num-val actual">${pick.distance !== null ? (pick.line_submitted + (pick.score < 100 ? (pick.line_submitted > 0 ? pick.distance : -pick.distance) : 0)).toFixed(0) : '—'}</div><div class="hist-num-label">actual</div></div>
+          <div class="hist-num"><div class="hist-num-val actual">${actualScore}</div><div class="hist-num-label">actual</div></div>
         </div>
         <div class="hist-score"><div class="hist-score-num ${scoreClass}">${pick.score?.toFixed(1) || '—'}</div><div class="hist-score-label">pts</div></div>
       </div>`;
@@ -1138,6 +1146,65 @@ async function loadProfile() {
 }
 
 // ---- SHARE ----
+function showHistModal(pickEncoded) {
+  const pick = typeof pickEncoded === 'string' ? JSON.parse(decodeURIComponent(pickEncoded)) : pickEncoded;
+  if(!pick.resulted) return;
+
+  const actual = (100 - pick.score + pick.line_submitted);
+  const dist = pick.distance;
+  const pts = pick.score;
+  const ptsClass = pts >= 95 ? 'great' : pts >= 85 ? 'good' : 'ok';
+
+  const overlay = document.createElement('div');
+  overlay.className = 'hist-modal-overlay';
+  overlay.id = 'hist-modal-overlay';
+  overlay.onclick = (e) => { if(e.target === overlay) closeHistModal(); };
+
+  overlay.innerHTML = `
+    <div class="hist-modal">
+      <div class="hist-modal-handle"></div>
+      <div style="text-align:center;margin-bottom:16px;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:0.5px;">${pick.player_name}</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:3px;">${formatDate(pick.date)}</div>
+      </div>
+      <div class="numbers-row" style="margin-bottom:12px;padding:0;">
+        <div class="num-box yours-box"><div class="num-label">Your Line</div><div class="num-val yours" style="font-size:36px;">${pick.line_submitted.toFixed(1)}</div></div>
+        <div class="vs-label">VS</div>
+        <div class="num-box actual-box"><div class="num-label">Actual Score</div><div class="num-val actual" style="font-size:36px;">${actual.toFixed(0)}</div></div>
+      </div>
+      <div class="points-earned ${ptsClass}" style="margin-bottom:14px;">
+        <div class="points-label">Points Earned</div>
+        <div class="points-val ${ptsClass}" style="font-size:48px;">${pts.toFixed(1)}</div>
+        <div class="points-sub">${dist.toFixed(1)} off · 100 − ${dist.toFixed(1)} = ${pts.toFixed(1)} pts</div>
+      </div>
+      <button class="share-btn" style="margin-bottom:10px;" onclick="generateHistShare(${JSON.stringify(pick).replace(/"/g, '&quot;')}, ${actual.toFixed(0)})">
+        <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        SAVE TO PHOTOS
+      </button>
+      <button onclick="closeHistModal()" style="width:100%;background:none;border:0.5px solid var(--border2);border-radius:12px;padding:14px;font-size:13px;color:var(--text-muted);cursor:pointer;font-family:'DM Sans',sans-serif;">Close</button>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+}
+
+function closeHistModal() {
+  const overlay = document.getElementById('hist-modal-overlay');
+  if(overlay) overlay.remove();
+}
+
+async function generateHistShare(pick, actual) {
+  // Update share card with history pick data
+  document.getElementById('sc-date').textContent = formatDate(pick.date) + ' · NBA';
+  document.getElementById('sc-player').textContent = pick.player_name;
+  document.getElementById('sc-matchup').textContent = '';
+  document.getElementById('sc-your-line').textContent = pick.line_submitted.toFixed(1);
+  document.getElementById('sc-actual').textContent = actual;
+  document.getElementById('sc-dist').textContent = pick.distance.toFixed(1) + ' off';
+  document.getElementById('sc-pts').textContent = pick.score.toFixed(1) + ' pts';
+  await generateShare();
+}
+
 async function generateShare() {
   const overlay = document.getElementById('generating');
   overlay.style.display = 'flex';

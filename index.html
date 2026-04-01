@@ -557,6 +557,12 @@ async function init() {
 async function loadUserData() {
   const { data } = await sb.from('users').select('*').eq('id', currentUser.id).single();
   currentUserData = data;
+
+  // Check if streak hit 7 and trial not yet unlocked
+  if(data && data.current_streak >= 7 && !data.trial_unlocked) {
+    await sb.from('users').update({ trial_unlocked: true }).eq('id', currentUser.id);
+    currentUserData = { ...data, trial_unlocked: true };
+  }
 }
 
 // ---- AUTH ----

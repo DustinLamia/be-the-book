@@ -801,6 +801,16 @@ function renderTodayCard(player, pick) {
           <div class="avg-chip">L5 avg: <strong>${avgPts} pts</strong></div>
         </div>
       </div>
+      ${last5.length ? `<div style="padding:0 18px 14px;">
+        <div style="font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:8px;">Last 5 Games</div>
+        <div style="display:flex;gap:6px;">
+          ${last5.map(g => `<div style="flex:1;background:var(--surface2);border-radius:8px;padding:8px 4px;text-align:center;">
+            <div style="font-size:9px;color:var(--text-dim);margin-bottom:3px;">${g.opp}</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--text);line-height:1;">${g.pts}</div>
+            <div style="font-size:9px;font-weight:600;margin-top:2px;color:${g.win ? 'var(--green)' : 'var(--red)'};">${g.win ? 'W' : 'L'}</div>
+          </div>`).join('')}
+        </div>
+      </div>` : ''}
       <div class="book-lines">
         <div class="book-lines-title">Daily Grind Fantasy has tonight's lines at</div>
         <div class="book-row">
@@ -822,10 +832,6 @@ function renderTodayCard(player, pick) {
         <div class="book-source">Powered by <a href="https://dgfantasy.com" target="_blank">DGFantasy.com</a></div>
       </div>
       ${inputHtml}
-    </div>
-    <div class="last5-card">
-      <div class="section-title">${player.player_name} — Last 5 Games</div>
-      <div class="last5-row">${last5Html}</div>
     </div>
     <a href="https://dgfantasy.com" target="_blank" class="cta-card">
       <div><div class="cta-text">Find tonight's +EV player props</div><div class="cta-sub">Daily Grind Fantasy · AI Slip Generator & Optimizer</div></div>

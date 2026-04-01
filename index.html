@@ -9,104 +9,79 @@
 <title>Be The Book</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-
 :root {
-  --bg: #0b0b0f;
-  --surface: #13131a;
-  --surface2: #1c1c26;
-  --border: rgba(255,255,255,0.06);
-  --border2: rgba(255,255,255,0.12);
-  --green: #00e676;
-  --green-dim: rgba(0,230,118,0.1);
-  --green-border: rgba(0,230,118,0.2);
-  --gold: #ffd600;
-  --gold-dim: rgba(255,214,0,0.1);
-  --red: #ff3d57;
-  --text: #f0f0f5;
-  --text-muted: rgba(240,240,245,0.5);
-  --text-dim: rgba(240,240,245,0.22);
+  --bg: #0b0b0f; --surface: #13131a; --surface2: #1c1c26;
+  --border: rgba(255,255,255,0.06); --border2: rgba(255,255,255,0.12);
+  --green: #00e676; --green-dim: rgba(0,230,118,0.1); --green-border: rgba(0,230,118,0.2);
+  --gold: #ffd600; --gold-dim: rgba(255,214,0,0.1);
+  --red: #ff3d57; --red-dim: rgba(255,61,87,0.1);
+  --text: #f0f0f5; --text-muted: rgba(240,240,245,0.5); --text-dim: rgba(240,240,245,0.22);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
-
 html, body { height: 100%; overflow: hidden; }
-
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'DM Sans', sans-serif;
-  display: flex;
-  flex-direction: column;
-  max-width: 480px;
-  margin: 0 auto;
-}
+body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; display: flex; flex-direction: column; max-width: 480px; margin: 0 auto; }
 
 /* HEADER */
-.header {
-  flex-shrink: 0;
-  background: var(--surface);
-  border-bottom: 0.5px solid var(--border);
-  padding: 12px 20px;
-  padding-top: max(12px, env(safe-area-inset-top));
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
+.header { flex-shrink: 0; background: var(--surface); border-bottom: 0.5px solid var(--border); padding: 12px 20px; padding-top: max(12px, env(safe-area-inset-top)); display: flex; align-items: center; justify-content: space-between; }
 .logo-mark { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 1.5px; line-height: 1; color: var(--text); }
 .logo-mark span { color: var(--green); }
 .logo-sub { font-size: 11px; color: var(--green); letter-spacing: 0.3px; margin-top: 1px; font-weight: 500; }
 .logo-sub .by { color: var(--text-muted); }
-
 .streak-badge { background: var(--gold-dim); border: 0.5px solid rgba(255,214,0,0.25); border-radius: 20px; padding: 6px 14px; font-size: 13px; color: var(--gold); font-weight: 600; }
-.score-chip { background: var(--green-dim); border: 0.5px solid var(--green-border); border-radius: 20px; padding: 6px 14px; font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--green); letter-spacing: 0.5px; }
+.score-chip { background: var(--green-dim); border: 0.5px solid var(--green-border); border-radius: 20px; padding: 6px 14px; font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--green); }
 
 /* SCROLL */
 .scroll-area { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 20px 16px; padding-bottom: calc(72px + var(--safe-bottom)); }
 
 /* BOTTOM NAV */
-.bottom-nav {
-  flex-shrink: 0;
-  position: fixed;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100%;
-  max-width: 480px;
-  background: var(--surface);
-  border-top: 0.5px solid var(--border2);
-  display: flex;
-  padding-bottom: var(--safe-bottom);
-  z-index: 100;
-}
-
-.nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 0; cursor: pointer; transition: all 0.15s; }
+.bottom-nav { flex-shrink: 0; position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: var(--surface); border-top: 0.5px solid var(--border2); display: flex; padding-bottom: var(--safe-bottom); z-index: 100; }
+.nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 0; cursor: pointer; }
 .nav-item svg { width: 22px; height: 22px; stroke: var(--text-dim); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; transition: stroke 0.15s; }
 .nav-item span { font-size: 10px; color: var(--text-dim); font-weight: 500; transition: color 0.15s; }
 .nav-item.active svg { stroke: var(--green); }
 .nav-item.active span { color: var(--green); }
 
+/* AUTH SCREEN */
+.auth-screen { padding: 40px 24px; text-align: center; }
+.auth-logo { font-family: 'Bebas Neue', sans-serif; font-size: 48px; letter-spacing: 2px; color: var(--text); margin-bottom: 4px; }
+.auth-logo span { color: var(--green); }
+.auth-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 8px; }
+.auth-sub .by { color: var(--text-dim); }
+.auth-tagline { font-size: 15px; color: var(--text-muted); margin-bottom: 32px; line-height: 1.5; }
+.auth-tabs { display: flex; background: var(--surface); border-radius: 12px; padding: 3px; margin-bottom: 20px; }
+.auth-tab { flex: 1; text-align: center; padding: 9px; font-size: 13px; font-weight: 500; color: var(--text-muted); border-radius: 10px; cursor: pointer; }
+.auth-tab.active { background: var(--green); color: #0b0b0f; font-weight: 600; }
+.auth-input { width: 100%; background: var(--surface); border: 0.5px solid var(--border2); border-radius: 12px; padding: 14px 16px; font-size: 14px; color: var(--text); font-family: 'DM Sans', sans-serif; outline: none; margin-bottom: 10px; }
+.auth-input:focus { border-color: var(--green); }
+.auth-input::placeholder { color: var(--text-dim); }
+.auth-btn { width: 100%; background: var(--green); border: none; border-radius: 12px; padding: 16px; font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 1px; color: #0b0b0f; cursor: pointer; margin-top: 4px; }
+.auth-btn:disabled { opacity: 0.5; }
+.auth-error { font-size: 12px; color: var(--red); margin-top: 8px; text-align: center; }
+.auth-success { font-size: 12px; color: var(--green); margin-top: 8px; text-align: center; }
+
 /* CARDS */
 .card { background: var(--surface); border: 0.5px solid var(--border2); border-radius: 18px; overflow: hidden; margin-bottom: 14px; animation: fadeUp 0.35s ease both; }
 @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
-
 .card-header-row { padding: 14px 18px 0; display: flex; align-items: center; justify-content: space-between; }
 .card-label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
 .live-badge { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--green); font-weight: 600; }
 .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 1.5s infinite; }
 .final-badge { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; background: var(--green-dim); color: var(--green); border: 0.5px solid var(--green-border); }
+.void-badge { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; background: var(--red-dim); color: var(--red); border: 0.5px solid rgba(255,61,87,0.2); }
 @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.4} }
 
 /* PLAYER HERO */
 .player-hero { padding: 16px 18px; display: flex; align-items: center; gap: 14px; }
-.player-avatar { width: 64px; height: 64px; border-radius: 50%; background: var(--surface2); border: 2px solid var(--border2); display: flex; align-items: center; justify-content: center; font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--text-muted); flex-shrink: 0; position: relative; }
+.player-avatar { width: 64px; height: 64px; border-radius: 50%; background: var(--surface2); border: 2px solid var(--border2); display: flex; align-items: center; justify-content: center; font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--text-muted); flex-shrink: 0; position: relative; overflow: hidden; }
+.player-avatar img { width: 100%; height: 100%; object-fit: cover; }
 .player-avatar.sm { width: 52px; height: 52px; font-size: 18px; }
 .pos-badge { position: absolute; bottom: -2px; right: -2px; background: var(--green); color: #0b0b0f; font-size: 8px; font-weight: 700; padding: 2px 5px; border-radius: 5px; }
 .player-name { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 0.5px; line-height: 1; margin-bottom: 3px; }
 .player-name.sm { font-size: 22px; }
 .player-meta { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
-.player-meta.sm { margin-bottom: 0; }
 .avg-chip { display: inline-flex; align-items: center; gap: 5px; background: var(--surface2); border: 0.5px solid var(--border); border-radius: 8px; padding: 4px 10px; font-size: 12px; color: var(--text-muted); }
 .avg-chip strong { color: var(--text); }
 
@@ -129,23 +104,30 @@ body {
 .input-wrap { padding: 0 18px 18px; }
 .input-label { font-size: 13px; color: var(--text-muted); margin-bottom: 10px; font-weight: 500; }
 .number-input-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-.minus-btn, .plus-btn { width: 48px; height: 56px; border-radius: 12px; background: var(--surface2); border: 0.5px solid var(--border2); color: var(--text); font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.1s; }
+.minus-btn, .plus-btn { width: 52px; height: 60px; border-radius: 12px; background: var(--surface2); border: 0.5px solid var(--border2); color: var(--text); font-size: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .minus-btn:active, .plus-btn:active { background: var(--border2); }
-.line-display { flex: 1; background: var(--bg); border: 1.5px solid var(--border2); border-radius: 12px; padding: 14px; font-family: 'Bebas Neue', sans-serif; font-size: 36px; color: var(--text); text-align: center; letter-spacing: 1px; transition: border-color 0.15s; }
+.line-display { flex: 1; background: var(--bg); border: 1.5px solid var(--border2); border-radius: 12px; padding: 14px; font-family: 'Bebas Neue', sans-serif; font-size: 40px; color: var(--text); text-align: center; letter-spacing: 1px; transition: border-color 0.15s; }
 .line-display.active { border-color: var(--green); }
 .input-hint { font-size: 11px; color: var(--text-dim); text-align: center; margin-bottom: 14px; }
 .submit-btn { width: 100%; background: var(--green); border: none; border-radius: 14px; padding: 18px; font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 1.5px; color: #0b0b0f; cursor: pointer; transition: all 0.15s; }
 .submit-btn:active { opacity: 0.85; transform: scale(0.98); }
+.submit-btn:disabled { opacity: 0.4; }
 .lock-info { display: flex; align-items: center; justify-content: center; gap: 5px; margin-top: 10px; font-size: 12px; color: var(--text-dim); }
 
-/* SUBMITTED STATE */
+/* SUBMITTED */
 .submitted-wrap { padding: 24px 18px; text-align: center; }
 .submitted-num { font-family: 'Bebas Neue', sans-serif; font-size: 80px; color: var(--green); letter-spacing: 2px; line-height: 1; margin-bottom: 4px; }
 .submitted-label { font-size: 14px; color: var(--text-muted); margin-bottom: 6px; }
 .submitted-sub { font-size: 12px; color: var(--text-dim); line-height: 1.6; margin-bottom: 18px; }
 .change-btn { background: none; border: 0.5px solid var(--border2); border-radius: 10px; padding: 10px 20px; font-size: 13px; color: var(--text-muted); cursor: pointer; font-family: 'DM Sans', sans-serif; }
 
-/* RESULT SCREEN */
+/* NO GAMES */
+.no-games { padding: 60px 20px; text-align: center; }
+.no-games-icon { font-size: 48px; margin-bottom: 16px; }
+.no-games-title { font-family: 'Bebas Neue', sans-serif; font-size: 24px; color: var(--text-muted); letter-spacing: 0.5px; margin-bottom: 8px; }
+.no-games-sub { font-size: 13px; color: var(--text-dim); line-height: 1.6; }
+
+/* RESULT */
 .numbers-row { display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px; align-items: center; margin-bottom: 14px; padding: 0 18px; }
 .num-box { background: var(--surface2); border-radius: 14px; padding: 16px 12px; text-align: center; }
 .num-box.actual-box { background: rgba(0,230,118,0.08); border: 1.5px solid var(--green-border); }
@@ -155,13 +137,10 @@ body {
 .num-val.actual { color: var(--green); }
 .num-val.yours { color: var(--text); }
 .vs-label { font-family: 'Bebas Neue', sans-serif; font-size: 16px; color: var(--text-dim); text-align: center; }
-
 .result-details { padding: 0 18px 18px; display: flex; flex-direction: column; gap: 10px; }
-
 .distance-row { background: var(--surface2); border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; }
 .distance-label { font-size: 13px; color: var(--text-muted); }
 .distance-val { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--text); }
-
 .points-earned { border-radius: 14px; padding: 18px; text-align: center; }
 .points-earned.great { background: rgba(0,230,118,0.08); border: 1.5px solid var(--green-border); }
 .points-earned.good { background: rgba(255,214,0,0.08); border: 1.5px solid rgba(255,214,0,0.2); }
@@ -172,7 +151,6 @@ body {
 .points-val.good { color: var(--gold); }
 .points-val.ok { color: var(--text-muted); }
 .points-sub { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
-
 .crowd-card { background: var(--surface2); border-radius: 12px; padding: 14px 16px; }
 .crowd-title { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; margin-bottom: 10px; }
 .crowd-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
@@ -182,7 +160,7 @@ body {
 .crowd-bar { height: 100%; border-radius: 3px; }
 .crowd-bar.you { background: var(--green); }
 .crowd-bar.avg { background: var(--text-dim); }
-.crowd-bar.actual { background: var(--green); }
+.crowd-bar.actual-bar { background: var(--green); }
 .crowd-num { font-family: 'Bebas Neue', sans-serif; font-size: 16px; color: var(--text); width: 36px; text-align: right; flex-shrink: 0; }
 .beat-crowd { margin-top: 10px; padding-top: 10px; border-top: 0.5px solid var(--border); font-size: 12px; color: var(--green); font-weight: 600; text-align: center; }
 
@@ -247,14 +225,19 @@ body {
 .lb-pts { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--text); text-align: right; flex-shrink: 0; }
 .lb-pts.me { color: var(--green); }
 .lb-pts-label { font-size: 10px; color: var(--text-dim); text-align: right; }
+.lb-empty { text-align: center; padding: 40px 0; color: var(--text-dim); font-size: 13px; }
 
 /* HISTORY */
 .streak-bar { background: var(--gold-dim); border: 0.5px solid rgba(255,214,0,0.2); border-radius: 14px; padding: 14px 16px; margin-bottom: 14px; text-align: center; }
 .streak-title { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--gold); letter-spacing: 0.5px; margin-bottom: 4px; }
 .streak-sub { font-size: 12px; color: rgba(255,214,0,0.6); line-height: 1.5; margin-bottom: 12px; }
 .streak-cta { display: inline-block; background: var(--gold); color: #0b0b0f; padding: 9px 20px; border-radius: 10px; font-size: 13px; font-weight: 700; text-decoration: none; }
+.streak-unlocked { background: var(--green-dim); border: 0.5px solid var(--green-border); border-radius: 14px; padding: 14px 16px; margin-bottom: 14px; text-align: center; }
+.streak-unlocked-title { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--green); margin-bottom: 4px; }
+.streak-unlocked-sub { font-size: 12px; color: rgba(0,230,118,0.6); margin-bottom: 12px; }
+.streak-unlocked-cta { display: inline-block; background: var(--green); color: #0b0b0f; padding: 9px 20px; border-radius: 10px; font-size: 13px; font-weight: 700; text-decoration: none; }
 .hist-list { background: var(--surface); border-radius: 14px; overflow: hidden; }
-.hist-row { display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-bottom: 0.5px solid var(--border); cursor: pointer; transition: background 0.1s; }
+.hist-row { display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-bottom: 0.5px solid var(--border); cursor: pointer; }
 .hist-row:last-child { border-bottom: none; }
 .hist-row:active { background: var(--surface2); }
 .hist-date { font-size: 11px; color: var(--text-dim); width: 48px; flex-shrink: 0; line-height: 1.4; }
@@ -272,9 +255,23 @@ body {
 .hist-score-num.great { color: var(--green); }
 .hist-score-num.good { color: var(--gold); }
 .hist-score-num.ok { color: var(--text-muted); }
+.hist-score-num.void { color: var(--text-dim); font-size: 12px; }
 .hist-score-label { font-size: 9px; color: var(--text-dim); }
+.hist-empty { text-align: center; padding: 40px 0; color: var(--text-dim); font-size: 13px; }
 
-/* SHARE CARD (hidden, PNG only) */
+/* PROFILE */
+.profile-card { background: var(--surface); border: 0.5px solid var(--border2); border-radius: 16px; padding: 20px; margin-bottom: 14px; }
+.profile-avatar { width: 60px; height: 60px; border-radius: 50%; background: var(--green-dim); border: 2px solid var(--green-border); display: flex; align-items: center; justify-content: center; font-family: 'Bebas Neue', sans-serif; font-size: 24px; color: var(--green); margin: 0 auto 12px; }
+.profile-username { font-family: 'Bebas Neue', sans-serif; font-size: 24px; text-align: center; letter-spacing: 0.5px; margin-bottom: 4px; }
+.profile-email { font-size: 12px; color: var(--text-dim); text-align: center; margin-bottom: 16px; }
+.profile-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+.profile-stat { background: var(--surface2); border-radius: 10px; padding: 12px 8px; text-align: center; }
+.profile-stat-val { font-family: 'Bebas Neue', sans-serif; font-size: 24px; color: var(--text); }
+.profile-stat-label { font-size: 10px; color: var(--text-dim); margin-top: 2px; }
+.signout-btn { width: 100%; background: none; border: 0.5px solid var(--border2); border-radius: 10px; padding: 12px; font-size: 13px; color: var(--text-muted); cursor: pointer; font-family: 'DM Sans', sans-serif; }
+.signout-btn:hover { border-color: var(--red); color: var(--red); }
+
+/* SHARE CARD */
 .share-card-wrap { position: fixed; left: -9999px; top: 0; width: 400px; }
 .share-card { width: 400px; background: #0b0b0f; padding: 32px; font-family: 'DM Sans', sans-serif; border: 1px solid rgba(255,255,255,0.1); }
 .sc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
@@ -304,10 +301,14 @@ body {
 .sc-cta strong { color: #00e676; }
 .sc-url { font-size: 11px; color: rgba(240,240,245,0.25); }
 
+/* LOADING */
+.loading-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 0; gap: 14px; }
+.spinner { width: 32px; height: 32px; border: 2px solid rgba(255,255,255,0.1); border-top-color: var(--green); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { font-size: 13px; color: var(--text-dim); }
+
 /* GENERATING */
 .generating { position: fixed; inset: 0; background: rgba(11,11,15,0.9); display: none; flex-direction: column; align-items: center; justify-content: center; gap: 14px; z-index: 999; }
-.spinner { width: 36px; height: 36px; border: 2px solid rgba(255,255,255,0.1); border-top-color: var(--green); border-radius: 50%; animation: spin 0.8s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
 .gen-text { font-size: 14px; color: var(--text-muted); }
 </style>
 </head>
@@ -319,247 +320,96 @@ body {
     <div class="logo-mark">BE THE <span>BOOK</span></div>
     <div class="logo-sub"><span class="by">by</span> Daily Grind Fantasy</div>
   </div>
-  <div id="header-badge">
-    <div class="streak-badge">🔥 5 days</div>
-  </div>
+  <div id="header-badge"></div>
 </div>
 
 <!-- SCROLL AREA -->
 <div class="scroll-area" id="scroll-area">
 
-  <!-- ===== TODAY TAB ===== -->
-  <div id="tab-today">
-
-    <!-- PLAYER CARD - INPUT STATE -->
-    <div class="card" id="card-input">
-      <div class="card-header-row">
-        <div class="card-label">Tuesday Apr 1 · NBA</div>
-        <div class="live-badge"><div class="live-dot"></div>Lines Live</div>
+  <!-- AUTH SCREEN -->
+  <div id="screen-auth" style="display:none;">
+    <div class="auth-screen">
+      <div class="auth-logo">BE THE <span>BOOK</span></div>
+      <div class="auth-sub"><span class="by">by</span> Daily Grind Fantasy</div>
+      <div class="auth-tagline">Set the line. Beat the crowd.<br>Play daily. Win monthly.</div>
+      <div class="auth-tabs">
+        <div class="auth-tab active" id="auth-tab-login" onclick="switchAuthTab('login')">Sign In</div>
+        <div class="auth-tab" id="auth-tab-signup" onclick="switchAuthTab('signup')">Sign Up</div>
       </div>
-      <div class="player-hero">
-        <div class="player-avatar">LJ<div class="pos-badge">SF</div></div>
-        <div>
-          <div class="player-name">LeBron James</div>
-          <div class="player-meta">Los Angeles Lakers · vs DEN</div>
-          <div class="avg-chip">L5 avg: <strong>28.4 pts</strong></div>
-        </div>
+      <div id="auth-login">
+        <input class="auth-input" type="email" id="login-email" placeholder="Email address" />
+        <input class="auth-input" type="password" id="login-password" placeholder="Password" />
+        <button class="auth-btn" onclick="signIn()">SIGN IN</button>
       </div>
-      <div class="book-lines">
-        <div class="book-lines-title">Daily Grind Fantasy has tonight's lines at</div>
-        <div class="book-row">
-          <div class="book-name">FanDuel</div>
-          <div class="book-num">27.5</div>
-          <div class="book-odds"><span class="odd-pill odd-over">O -115</span><span class="odd-pill odd-under">U -105</span></div>
-        </div>
-        <div class="book-row">
-          <div class="book-name">DraftKings</div>
-          <div class="book-num">28.5</div>
-          <div class="book-odds"><span class="odd-pill odd-over">O -110</span><span class="odd-pill odd-under">U -110</span></div>
-        </div>
-        <div class="book-source">Powered by <a href="https://dgfantasy.com" target="_blank">DGFantasy.com</a></div>
+      <div id="auth-signup" style="display:none;">
+        <input class="auth-input" type="text" id="signup-username" placeholder="Username (visible on leaderboard)" maxlength="20" />
+        <input class="auth-input" type="email" id="signup-email" placeholder="Email address" />
+        <input class="auth-input" type="password" id="signup-password" placeholder="Password (min 6 chars)" />
+        <button class="auth-btn" onclick="signUp()">CREATE ACCOUNT</button>
       </div>
-      <div class="input-wrap" id="input-wrap">
-        <div class="input-label">Set your line for LeBron's points tonight</div>
-        <div class="number-input-row">
-          <button class="minus-btn" onclick="adjustLine(-1)">−</button>
-          <div class="line-display" id="line-display">27.5</div>
-          <button class="plus-btn" onclick="adjustLine(1)">+</button>
-        </div>
-        <div class="input-hint">Your line must end in .5 — closest to his real score wins</div>
-        <button class="submit-btn" onclick="submitLine()">SET THE LINE</button>
-        <div class="lock-info">🔒 Locks at tip off · 7:30 PM EST</div>
-      </div>
-      <div class="submitted-wrap" id="submitted-wrap" style="display:none;">
-        <div class="submitted-num" id="submitted-num">27.5</div>
-        <div class="submitted-label">Your line for LeBron James</div>
-        <div class="submitted-sub">Result revealed after the game.<br>FanDuel: 27.5 · DraftKings: 28.5</div>
-        <button class="change-btn" onclick="changeLine()">Change my line</button>
-      </div>
+      <div id="auth-msg"></div>
     </div>
-
-    <a href="https://dgfantasy.com" target="_blank" class="cta-card" style="animation-delay:0.1s">
-      <div><div class="cta-text">Find tonight's +EV player props</div><div class="cta-sub">Daily Grind Fantasy · AI Slip Generator & Optimizer</div></div>
-      <div class="cta-arrow">→</div>
-    </a>
-
-    <div class="last5-card">
-      <div class="section-title">LeBron James — Last 5 Games</div>
-      <div class="last5-row">
-        <div class="game-chip"><div class="game-opp">vs GSW</div><div class="game-pts">34</div><div class="game-result w">W</div></div>
-        <div class="game-chip"><div class="game-opp">@ PHX</div><div class="game-pts">22</div><div class="game-result l">L</div></div>
-        <div class="game-chip"><div class="game-opp">vs DAL</div><div class="game-pts">31</div><div class="game-result w">W</div></div>
-        <div class="game-chip"><div class="game-opp">@ MEM</div><div class="game-pts">28</div><div class="game-result w">W</div></div>
-        <div class="game-chip"><div class="game-opp">vs SAC</div><div class="game-pts">27</div><div class="game-result l">L</div></div>
-      </div>
-    </div>
-
   </div>
 
-  <!-- ===== RESULT TAB ===== -->
-  <div id="tab-result" style="display:none;">
-
-    <div class="card">
-      <div class="card-header-row">
-        <div class="card-label">Tuesday Apr 1 · NBA</div>
-        <div class="final-badge">Final</div>
-      </div>
-      <div class="player-hero">
-        <div class="player-avatar sm">LJ</div>
-        <div>
-          <div class="player-name sm">LeBron James</div>
-          <div class="player-meta sm">Los Angeles Lakers · vs Denver Nuggets</div>
-        </div>
-      </div>
-      <div class="numbers-row">
-        <div class="num-box yours-box"><div class="num-label">Your Line</div><div class="num-val yours" id="result-your-line">28.5</div></div>
-        <div class="vs-label">VS</div>
-        <div class="num-box actual-box"><div class="num-label">Actual Score</div><div class="num-val actual">31</div></div>
-      </div>
-      <div class="result-details">
-        <div class="distance-row">
-          <div class="distance-label">Distance from actual</div>
-          <div class="distance-val" id="result-distance">2.5 off</div>
-        </div>
-        <div class="points-earned great">
-          <div class="points-label">Points Earned Today</div>
-          <div class="points-val great" id="result-pts">97.5</div>
-          <div class="points-sub" id="result-pts-sub">100 − 2.5 = 97.5 pts · Best possible: 99.5</div>
-        </div>
-        <div class="crowd-card">
-          <div class="crowd-title">How you compared</div>
-          <div class="crowd-row"><div class="crowd-who">Your line</div><div class="crowd-bar-wrap"><div class="crowd-bar you" style="width:92%"></div></div><div class="crowd-num" id="crowd-your">28.5</div></div>
-          <div class="crowd-row"><div class="crowd-who">Crowd avg</div><div class="crowd-bar-wrap"><div class="crowd-bar avg" style="width:78%"></div></div><div class="crowd-num">26.2</div></div>
-          <div class="crowd-row"><div class="crowd-who">Actual</div><div class="crowd-bar-wrap"><div class="crowd-bar actual" style="width:100%"></div></div><div class="crowd-num">31</div></div>
-          <div class="beat-crowd">You were closer than 73% of players today 🎯</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="lb-move-card">
-      <div class="lb-move-title">Leaderboard Movement</div>
-      <div class="lb-move-row">
-        <div class="lb-rank-before">#7</div>
-        <div class="lb-arrow">→</div>
-        <div class="lb-rank-after">#6</div>
-        <div>
-          <div class="lb-move-label">Moved up 1 spot</div>
-          <div class="lb-move-sub">2,198 pts total · 5 day streak 🔥</div>
-        </div>
-      </div>
-    </div>
-
-    <a href="https://dgfantasy.com" target="_blank" class="cta-card">
-      <div><div class="cta-text">Find tomorrow's +EV player props</div><div class="cta-sub">Daily Grind Fantasy · AI Slip Generator & Optimizer</div></div>
-      <div class="cta-arrow">→</div>
-    </a>
-
-    <button class="share-btn" onclick="generateShare()">
-      <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-      SHARE MY RESULT
-    </button>
-
+  <!-- TODAY TAB -->
+  <div id="tab-today" style="display:none;">
+    <div id="today-loading" class="loading-screen"><div class="spinner"></div><div class="loading-text">Loading today's pick...</div></div>
+    <div id="today-content" style="display:none;"></div>
   </div>
 
-  <!-- ===== LEADERBOARD TAB ===== -->
+  <!-- RESULT TAB -->
+  <div id="tab-result" style="display:none;"></div>
+
+  <!-- LEADERBOARD TAB -->
   <div id="tab-leaderboard" style="display:none;">
     <div class="lb-toggle">
-      <div class="lb-btn active" id="btn-month" onclick="showLb('month')">April 2026</div>
+      <div class="lb-btn active" id="btn-month" onclick="showLb('month')" id="lb-month-btn"></div>
       <div class="lb-btn" id="btn-alltime" onclick="showLb('alltime')">All-Time</div>
     </div>
-    <div id="lb-month">
+    <div id="lb-month-view">
       <div class="prizes-card">
-        <div class="prizes-title">🏆 April Prizes</div>
+        <div class="prizes-title">🏆 <span id="prize-month-label"></span> Prizes</div>
         <div class="prize-item"><div class="prize-icon">🥇</div><div class="prize-desc"><strong>1st Place</strong> — 1 Free Month: Fantasy Bundle + AI Slip Generator</div></div>
         <div class="prize-item"><div class="prize-icon">🥈</div><div class="prize-desc"><strong>2nd Place</strong> — 1 Free Month: AI Slip Generator</div></div>
         <div class="prize-item"><div class="prize-icon">🥉</div><div class="prize-desc"><strong>3rd Place</strong> — 1 Free Month: Fantasy Bundle</div></div>
         <div class="qualify">Minimum 10 picks required · Current DGF members eligible</div>
       </div>
-      <div class="lb-list">
-        <div class="lb-row"><div class="lb-rank g">1</div><div class="lb-av">SM</div><div class="lb-info"><div class="lb-name">sharpMike</div><div class="lb-meta">22 day streak · 28 picks</div></div><div><div class="lb-pts">2,847</div><div class="lb-pts-label">pts</div></div></div>
-        <div class="lb-row"><div class="lb-rank s">2</div><div class="lb-av">CK</div><div class="lb-info"><div class="lb-name">closinglineking</div><div class="lb-meta">18 day streak · 24 picks</div></div><div><div class="lb-pts">2,791</div><div class="lb-pts-label">pts</div></div></div>
-        <div class="lb-row"><div class="lb-rank b">3</div><div class="lb-av">PG</div><div class="lb-info"><div class="lb-name">propgrinder</div><div class="lb-meta">12 day streak · 19 picks</div></div><div><div class="lb-pts">2,634</div><div class="lb-pts-label">pts</div></div></div>
-        <div class="lb-row"><div class="lb-rank">4</div><div class="lb-av">EV</div><div class="lb-info"><div class="lb-name">evhunter44</div><div class="lb-meta">9 day streak · 16 picks</div></div><div><div class="lb-pts">2,489</div><div class="lb-pts-label">pts</div></div></div>
-        <div class="lb-row"><div class="lb-rank">5</div><div class="lb-av">BK</div><div class="lb-info"><div class="lb-name">betking88</div><div class="lb-meta">7 day streak · 14 picks</div></div><div><div class="lb-pts">2,341</div><div class="lb-pts-label">pts</div></div></div>
-        <div class="lb-row me"><div class="lb-rank">6</div><div class="lb-av me">SD</div><div class="lb-info"><div class="lb-name me">SportsByDustin <span style="font-size:10px;opacity:0.6">you</span></div><div class="lb-meta">5 day streak · 11 picks</div></div><div><div class="lb-pts me">2,198</div><div class="lb-pts-label">pts</div></div></div>
-        <div class="lb-row"><div class="lb-rank">7</div><div class="lb-av">DG</div><div class="lb-info"><div class="lb-name">dfsgrinder</div><div class="lb-meta">4 day streak · 13 picks</div></div><div><div class="lb-pts">2,041</div><div class="lb-pts-label">pts</div></div></div>
-        <div class="lb-row"><div class="lb-rank">8</div><div class="lb-av">LV</div><div class="lb-info"><div class="lb-name">linevalue</div><div class="lb-meta">3 day streak · 11 picks</div></div><div><div class="lb-pts">1,987</div><div class="lb-pts-label">pts</div></div></div>
-      </div>
+      <div id="lb-month-list" class="lb-list"><div class="loading-screen"><div class="spinner"></div></div></div>
     </div>
-    <div id="lb-alltime" style="display:none;">
-      <div class="lb-list">
-        <div class="lb-row"><div class="lb-rank g">1</div><div class="lb-av">CK</div><div class="lb-info"><div class="lb-name">closinglineking</div><div class="lb-meta">Best streak: 47 days · 189 picks</div></div><div><div class="lb-pts">18,241</div><div class="lb-pts-label">pts</div></div></div>
-        <div class="lb-row"><div class="lb-rank s">2</div><div class="lb-av">SM</div><div class="lb-info"><div class="lb-name">sharpMike</div><div class="lb-meta">Best streak: 38 days · 201 picks</div></div><div><div class="lb-pts">17,874</div><div class="lb-pts-label">pts</div></div></div>
-        <div class="lb-row"><div class="lb-rank b">3</div><div class="lb-av">EV</div><div class="lb-info"><div class="lb-name">evhunter44</div><div class="lb-meta">Best streak: 29 days · 167 picks</div></div><div><div class="lb-pts">15,992</div><div class="lb-pts-label">pts</div></div></div>
-        <div class="lb-row me"><div class="lb-rank">4</div><div class="lb-av me">SD</div><div class="lb-info"><div class="lb-name me">SportsByDustin <span style="font-size:10px;opacity:0.6">you</span></div><div class="lb-meta">Best streak: 14 days · 118 picks</div></div><div><div class="lb-pts me">12,847</div><div class="lb-pts-label">pts</div></div></div>
-      </div>
+    <div id="lb-alltime-view" style="display:none;">
+      <div id="lb-alltime-list" class="lb-list"><div class="loading-screen"><div class="spinner"></div></div></div>
     </div>
   </div>
 
-  <!-- ===== HISTORY TAB ===== -->
+  <!-- HISTORY TAB -->
   <div id="tab-history" style="display:none;">
-    <div class="streak-bar">
-      <div class="streak-title">🔥 5 Day Streak — 2 Days to Go</div>
-      <div class="streak-sub">Play 2 more days in a row to unlock a free 7-day Daily Grind Fantasy trial.</div>
-      <a href="https://dgfantasy.com" target="_blank" class="streak-cta">Try DGFantasy Free →</a>
+    <div id="history-streak"></div>
+    <div id="history-list" class="hist-list"><div class="loading-screen"><div class="spinner"></div></div></div>
+  </div>
+
+  <!-- PROFILE TAB -->
+  <div id="tab-profile" style="display:none;">
+    <div class="profile-card">
+      <div class="profile-avatar" id="profile-avatar"></div>
+      <div class="profile-username" id="profile-username"></div>
+      <div class="profile-email" id="profile-email"></div>
+      <div class="profile-stats">
+        <div class="profile-stat"><div class="profile-stat-val" id="stat-streak">0</div><div class="profile-stat-label">Day Streak</div></div>
+        <div class="profile-stat"><div class="profile-stat-val" id="stat-alltime">0</div><div class="profile-stat-label">All-Time Pts</div></div>
+        <div class="profile-stat"><div class="profile-stat-val" id="stat-picks">0</div><div class="profile-stat-label">Total Picks</div></div>
+      </div>
+      <button class="signout-btn" onclick="signOut()">Sign Out</button>
     </div>
-    <div class="hist-list">
-      <div class="hist-row" onclick="showResult()">
-        <div class="hist-date">Apr<br>1</div>
-        <div class="hist-player"><div class="hist-name">LeBron James</div><div class="hist-meta">LAL vs DEN · Tap to see result</div></div>
-        <div class="hist-nums">
-          <div class="hist-num"><div class="hist-num-val">28.5</div><div class="hist-num-label">your line</div></div>
-          <div class="hist-divider">→</div>
-          <div class="hist-num"><div class="hist-num-val actual">31</div><div class="hist-num-label">actual</div></div>
-        </div>
-        <div class="hist-score"><div class="hist-score-num great">97.5</div><div class="hist-score-label">pts</div></div>
-      </div>
-      <div class="hist-row">
-        <div class="hist-date">Mar<br>31</div>
-        <div class="hist-player"><div class="hist-name">Stephen Curry</div><div class="hist-meta">GSW vs LAL</div></div>
-        <div class="hist-nums">
-          <div class="hist-num"><div class="hist-num-val">28.5</div><div class="hist-num-label">your line</div></div>
-          <div class="hist-divider">→</div>
-          <div class="hist-num"><div class="hist-num-val actual">31</div><div class="hist-num-label">actual</div></div>
-        </div>
-        <div class="hist-score"><div class="hist-score-num great">97.5</div><div class="hist-score-label">pts</div></div>
-      </div>
-      <div class="hist-row">
-        <div class="hist-date">Mar<br>30</div>
-        <div class="hist-player"><div class="hist-name">Giannis Antetokounmpo</div><div class="hist-meta">MIL vs BOS</div></div>
-        <div class="hist-nums">
-          <div class="hist-num"><div class="hist-num-val">32.5</div><div class="hist-num-label">your line</div></div>
-          <div class="hist-divider">→</div>
-          <div class="hist-num"><div class="hist-num-val actual">28</div><div class="hist-num-label">actual</div></div>
-        </div>
-        <div class="hist-score"><div class="hist-score-num good">95.5</div><div class="hist-score-label">pts</div></div>
-      </div>
-      <div class="hist-row">
-        <div class="hist-date">Mar<br>29</div>
-        <div class="hist-player"><div class="hist-name">Nikola Jokic</div><div class="hist-meta">DEN @ PHX</div></div>
-        <div class="hist-nums">
-          <div class="hist-num"><div class="hist-num-val">27.5</div><div class="hist-num-label">your line</div></div>
-          <div class="hist-divider">→</div>
-          <div class="hist-num"><div class="hist-num-val actual">26</div><div class="hist-num-label">actual</div></div>
-        </div>
-        <div class="hist-score"><div class="hist-score-num great">98.5</div><div class="hist-score-label">pts</div></div>
-      </div>
-      <div class="hist-row">
-        <div class="hist-date">Mar<br>28</div>
-        <div class="hist-player"><div class="hist-name">Luka Doncic</div><div class="hist-meta">DAL vs MEM</div></div>
-        <div class="hist-nums">
-          <div class="hist-num"><div class="hist-num-val">35.5</div><div class="hist-num-label">your line</div></div>
-          <div class="hist-divider">→</div>
-          <div class="hist-num"><div class="hist-num-val actual">22</div><div class="hist-num-label">actual</div></div>
-        </div>
-        <div class="hist-score"><div class="hist-score-num ok">86.5</div><div class="hist-score-label">pts</div></div>
-      </div>
-    </div>
+    <a href="https://dgfantasy.com" target="_blank" class="cta-card">
+      <div><div class="cta-text">Find tonight's +EV player props</div><div class="cta-sub">Daily Grind Fantasy · AI Slip Generator & Optimizer</div></div>
+      <div class="cta-arrow">→</div>
+    </a>
   </div>
 
 </div>
 
 <!-- BOTTOM NAV -->
-<div class="bottom-nav">
+<div class="bottom-nav" id="bottom-nav" style="display:none;">
   <div class="nav-item active" id="nav-today" onclick="showTab('today')">
     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
     <span>Today</span>
@@ -570,7 +420,11 @@ body {
   </div>
   <div class="nav-item" id="nav-history" onclick="showTab('history')">
     <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-    <span>My History</span>
+    <span>History</span>
+  </div>
+  <div class="nav-item" id="nav-profile" onclick="showTab('profile')">
+    <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <span>Profile</span>
   </div>
 </div>
 
@@ -578,21 +432,18 @@ body {
 <div class="share-card-wrap" id="share-card-wrap">
   <div class="share-card" id="share-card">
     <div class="sc-header">
-      <div>
-        <div class="sc-logo">BE THE <span>BOOK</span></div>
-        <div class="sc-sub"><span class="by">by</span> Daily Grind Fantasy</div>
-      </div>
-      <div class="sc-date">April 1, 2026 · NBA</div>
+      <div><div class="sc-logo">BE THE <span>BOOK</span></div><div class="sc-sub"><span class="by">by</span> Daily Grind Fantasy</div></div>
+      <div class="sc-date" id="sc-date"></div>
     </div>
-    <div class="sc-player">LeBron James</div>
-    <div class="sc-matchup">Los Angeles Lakers vs Denver Nuggets</div>
+    <div class="sc-player" id="sc-player"></div>
+    <div class="sc-matchup" id="sc-matchup"></div>
     <div class="sc-numbers">
-      <div class="sc-num-box"><div class="sc-num-label">My Line</div><div class="sc-num-val yours" id="sc-your-line">28.5</div></div>
-      <div class="sc-num-box actual"><div class="sc-num-label">Actual Score</div><div class="sc-num-val actual">31</div></div>
+      <div class="sc-num-box"><div class="sc-num-label">My Line</div><div class="sc-num-val yours" id="sc-your-line"></div></div>
+      <div class="sc-num-box actual"><div class="sc-num-label">Actual Score</div><div class="sc-num-val actual" id="sc-actual"></div></div>
     </div>
     <div class="sc-result-row">
-      <div class="sc-dist"><div class="sc-dist-label">Distance</div><div class="sc-dist-val" id="sc-dist">2.5 off</div></div>
-      <div class="sc-pts"><div class="sc-pts-label">Points Earned</div><div class="sc-pts-val" id="sc-pts">97.5 pts</div></div>
+      <div class="sc-dist"><div class="sc-dist-label">Distance</div><div class="sc-dist-val" id="sc-dist"></div></div>
+      <div class="sc-pts"><div class="sc-pts-label">Points Earned</div><div class="sc-pts-val" id="sc-pts"></div></div>
     </div>
     <div class="sc-footer">
       <div class="sc-cta">Think you can beat me? Play at <strong>bethebook.gg</strong></div>
@@ -608,82 +459,664 @@ body {
 </div>
 
 <script>
-let lineValue = 27.5;
+// ---- SUPABASE ----
+const SUPABASE_URL = 'https://qhyjbqcantwymqtxrbkn.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFoeWpicWNhbnR3eW1xdHhyYmtuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNzE0MDUsImV4cCI6MjA5MDY0NzQwNX0.xVIYL5oU1IU2KqsDUkWZVFdiPdPf0TL0yJmQUE_ikg4';
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ---- STATE ----
+let currentUser = null;
+let currentUserData = null;
+let todayPlayer = null;
+let todayPick = null;
+let lineValue = 20.5;
 let currentTab = 'today';
+let resultData = null;
+
+// ---- INIT ----
+async function init() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) {
+    currentUser = session.user;
+    await loadUserData();
+    showApp();
+  } else {
+    showAuth();
+  }
+
+  sb.auth.onAuthStateChange(async (event, session) => {
+    if (event === 'SIGNED_IN' && session) {
+      currentUser = session.user;
+      await loadUserData();
+      showApp();
+    } else if (event === 'SIGNED_OUT') {
+      currentUser = null;
+      currentUserData = null;
+      showAuth();
+    }
+  });
+}
+
+async function loadUserData() {
+  const { data } = await sb.from('users').select('*').eq('id', currentUser.id).single();
+  currentUserData = data;
+}
+
+// ---- AUTH ----
+function showAuth() {
+  document.getElementById('screen-auth').style.display = 'block';
+  document.getElementById('bottom-nav').style.display = 'none';
+  document.getElementById('header-badge').innerHTML = '';
+  ['today','result','leaderboard','history','profile'].forEach(t => {
+    const el = document.getElementById(`tab-${t}`);
+    if(el) el.style.display = 'none';
+  });
+}
+
+function showApp() {
+  document.getElementById('screen-auth').style.display = 'none';
+  document.getElementById('bottom-nav').style.display = 'flex';
+  updateHeaderBadge();
+  showTab('today');
+}
+
+function switchAuthTab(tab) {
+  document.getElementById('auth-login').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('auth-signup').style.display = tab === 'signup' ? 'block' : 'none';
+  document.getElementById('auth-tab-login').className = 'auth-tab' + (tab === 'login' ? ' active' : '');
+  document.getElementById('auth-tab-signup').className = 'auth-tab' + (tab === 'signup' ? ' active' : '');
+  document.getElementById('auth-msg').innerHTML = '';
+}
+
+async function signIn() {
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const msg = document.getElementById('auth-msg');
+  msg.innerHTML = '';
+  if(!email || !password) { msg.innerHTML = '<div class="auth-error">Please fill in all fields</div>'; return; }
+  const { error } = await sb.auth.signInWithPassword({ email, password });
+  if(error) { msg.innerHTML = `<div class="auth-error">${error.message}</div>`; }
+}
+
+async function signUp() {
+  const username = document.getElementById('signup-username').value.trim();
+  const email = document.getElementById('signup-email').value.trim();
+  const password = document.getElementById('signup-password').value;
+  const msg = document.getElementById('auth-msg');
+  msg.innerHTML = '';
+  if(!username || !email || !password) { msg.innerHTML = '<div class="auth-error">Please fill in all fields</div>'; return; }
+  if(username.length < 3) { msg.innerHTML = '<div class="auth-error">Username must be at least 3 characters</div>'; return; }
+  if(password.length < 6) { msg.innerHTML = '<div class="auth-error">Password must be at least 6 characters</div>'; return; }
+
+  // Check username taken
+  const { data: existing } = await sb.from('users').select('id').eq('username', username).single();
+  if(existing) { msg.innerHTML = '<div class="auth-error">Username already taken</div>'; return; }
+
+  const { data, error } = await sb.auth.signUp({ email, password });
+  if(error) { msg.innerHTML = `<div class="auth-error">${error.message}</div>`; return; }
+
+  // Create user record
+  await sb.from('users').insert({ id: data.user.id, email, username });
+  msg.innerHTML = '<div class="auth-success">Account created! Signing you in...</div>';
+}
+
+async function signOut() {
+  await sb.auth.signOut();
+}
+
+// ---- HEADER BADGE ----
+function updateHeaderBadge() {
+  if(!currentUserData) return;
+  const streak = currentUserData.current_streak || 0;
+  if(currentTab === 'result' && resultData) {
+    document.getElementById('header-badge').innerHTML = `<div class="score-chip">${resultData.pts.toFixed(1)} PTS</div>`;
+  } else if(streak > 0) {
+    document.getElementById('header-badge').innerHTML = `<div class="streak-badge">🔥 ${streak} day${streak !== 1 ? 's' : ''}</div>`;
+  } else {
+    document.getElementById('header-badge').innerHTML = '';
+  }
+}
+
+// ---- TABS ----
+function showTab(tab) {
+  ['today','result','leaderboard','history','profile'].forEach(t => {
+    const el = document.getElementById(`tab-${t}`);
+    if(el) el.style.display = t === tab ? 'block' : 'none';
+  });
+  ['today','leaderboard','history','profile'].forEach(t => {
+    const el = document.getElementById(`nav-${t}`);
+    if(el) el.className = 'nav-item' + (t === tab ? ' active' : '');
+  });
+  document.getElementById('scroll-area').scrollTop = 0;
+  currentTab = tab;
+  updateHeaderBadge();
+
+  if(tab === 'today') loadToday();
+  if(tab === 'leaderboard') loadLeaderboard();
+  if(tab === 'history') loadHistory();
+  if(tab === 'profile') loadProfile();
+}
+
+// ---- TODAY ----
+async function loadToday() {
+  document.getElementById('today-loading').style.display = 'flex';
+  document.getElementById('today-content').style.display = 'none';
+
+  const today = new Date().toISOString().split('T')[0];
+
+  // Get today's player
+  const { data: player } = await sb.from('daily_player').select('*').eq('date', today).single();
+  todayPlayer = player;
+
+  // Get user's pick for today
+  const { data: pick } = await sb.from('picks').select('*').eq('user_id', currentUser.id).eq('date', today).single();
+  todayPick = pick;
+
+  document.getElementById('today-loading').style.display = 'none';
+  document.getElementById('today-content').style.display = 'block';
+
+  if(!player) {
+    renderNoGames();
+    return;
+  }
+
+  if(player.resulted_at && !player.voided) {
+    renderResult(player, pick);
+    return;
+  }
+
+  if(player.voided) {
+    renderVoided(player);
+    return;
+  }
+
+  renderTodayCard(player, pick);
+}
+
+function renderNoGames() {
+  const now = new Date();
+  const tomorrow = new Date(now);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const tomorrowStr = tomorrow.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
+  document.getElementById('today-content').innerHTML = `
+    <div class="no-games">
+      <div class="no-games-icon">🏀</div>
+      <div class="no-games-title">No NBA Games Tonight</div>
+      <div class="no-games-sub">Come back ${tomorrowStr} for your next pick.<br><br>Your streak is safe — off days don't count against you.</div>
+    </div>
+    <a href="https://dgfantasy.com" target="_blank" class="cta-card">
+      <div><div class="cta-text">Find +EV props while you wait</div><div class="cta-sub">Daily Grind Fantasy · AI Slip Generator & Optimizer</div></div>
+      <div class="cta-arrow">→</div>
+    </a>
+  `;
+}
+
+function renderVoided(player) {
+  document.getElementById('today-content').innerHTML = `
+    <div class="card">
+      <div class="card-header-row">
+        <div class="card-label">${formatDate(player.date)} · NBA</div>
+        <div class="void-badge">Voided</div>
+      </div>
+      <div class="player-hero">
+        <div class="player-avatar">${getInitials(player.player_name)}</div>
+        <div>
+          <div class="player-name">${player.player_name}</div>
+          <div class="player-meta">${player.player_team} · vs ${player.opponent}</div>
+        </div>
+      </div>
+      <div style="padding: 0 18px 18px; text-align:center;">
+        <div style="font-size:13px;color:var(--text-muted);line-height:1.6;">Today's pick has been voided.<br>${player.void_reason || 'Player did not play.'}<br><br>Your streak is protected. Come back tomorrow!</div>
+      </div>
+    </div>
+    <a href="https://dgfantasy.com" target="_blank" class="cta-card">
+      <div><div class="cta-text">Find tomorrow's +EV props</div><div class="cta-sub">Daily Grind Fantasy · AI Slip Generator & Optimizer</div></div>
+      <div class="cta-arrow">→</div>
+    </a>
+  `;
+}
+
+function renderTodayCard(player, pick) {
+  const isLocked = isPickLocked(player);
+  const last5 = player.last5 || [];
+
+  const last5Html = last5.length ? last5.map(g => `
+    <div class="game-chip">
+      <div class="game-opp">${g.opp}</div>
+      <div class="game-pts">${g.pts}</div>
+      <div class="game-result ${g.win ? 'w' : 'l'}">${g.win ? 'W' : 'L'}</div>
+    </div>
+  `).join('') : '<div style="color:var(--text-dim);font-size:12px;">No data</div>';
+
+  const avgPts = last5.length ? (last5.reduce((s,g) => s+g.pts, 0) / last5.length).toFixed(1) : '—';
+  const tipTime = player.tip_off_time ? new Date(player.tip_off_time).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }) : '—';
+  const lockTime = player.lock_time ? new Date(player.lock_time).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }) : '—';
+
+  if(pick && !isLocked) lineValue = pick.line_submitted;
+  else if(!pick) lineValue = player.fd_line || 20.5;
+
+  const inputHtml = pick || isLocked ? `
+    <div class="submitted-wrap">
+      <div class="submitted-num">${pick ? pick.line_submitted.toFixed(1) : '—'}</div>
+      <div class="submitted-label">Your line for ${player.player_name}</div>
+      <div class="submitted-sub">Result revealed after the game ends.<br>FanDuel: ${player.fd_line} · DraftKings: ${player.dk_line}</div>
+      ${!isLocked && pick ? `<button class="change-btn" onclick="changeLine()">Change my line</button>` : ''}
+      ${isLocked ? `<div style="font-size:12px;color:var(--text-dim);margin-top:8px;">🔒 Pick window closed</div>` : ''}
+    </div>
+  ` : `
+    <div class="input-wrap" id="input-wrap">
+      <div class="input-label">Set your line for ${player.player_name}'s points tonight</div>
+      <div class="number-input-row">
+        <button class="minus-btn" onclick="adjustLine(-1)">−</button>
+        <div class="line-display" id="line-display">${lineValue.toFixed(1)}</div>
+        <button class="plus-btn" onclick="adjustLine(1)">+</button>
+      </div>
+      <div class="input-hint">Your line must end in .5 — closest to his real score wins</div>
+      <button class="submit-btn" id="submit-btn" onclick="submitLine()">SET THE LINE</button>
+      <div class="lock-info">🔒 Locks at ${lockTime}</div>
+    </div>
+    <div class="submitted-wrap" id="submitted-wrap" style="display:none;">
+      <div class="submitted-num" id="submitted-num">${lineValue.toFixed(1)}</div>
+      <div class="submitted-label">Your line for ${player.player_name}</div>
+      <div class="submitted-sub">Result revealed after the game.<br>FanDuel: ${player.fd_line} · DraftKings: ${player.dk_line}</div>
+      <button class="change-btn" onclick="changeLine()">Change my line</button>
+    </div>
+  `;
+
+  document.getElementById('today-content').innerHTML = `
+    <div class="card">
+      <div class="card-header-row">
+        <div class="card-label">${formatDate(player.date)} · NBA</div>
+        <div class="live-badge"><div class="live-dot"></div>Lines Live</div>
+      </div>
+      <div class="player-hero">
+        <div class="player-avatar" id="player-av">${getInitials(player.player_name)}<div class="pos-badge">${player.player_pos || 'G'}</div></div>
+        <div>
+          <div class="player-name">${player.player_name}</div>
+          <div class="player-meta">${player.player_team} · vs ${player.opponent}</div>
+          <div class="avg-chip">L5 avg: <strong>${avgPts} pts</strong></div>
+        </div>
+      </div>
+      <div class="book-lines">
+        <div class="book-lines-title">Daily Grind Fantasy has tonight's lines at</div>
+        <div class="book-row">
+          <div class="book-name">FanDuel</div>
+          <div class="book-num">${player.fd_line}</div>
+          <div class="book-odds">
+            <span class="odd-pill odd-over">O ${player.fd_over_odds > 0 ? '+' : ''}${player.fd_over_odds}</span>
+            <span class="odd-pill odd-under">U ${player.fd_under_odds > 0 ? '+' : ''}${player.fd_under_odds}</span>
+          </div>
+        </div>
+        <div class="book-row">
+          <div class="book-name">DraftKings</div>
+          <div class="book-num">${player.dk_line}</div>
+          <div class="book-odds">
+            <span class="odd-pill odd-over">O ${player.dk_over_odds > 0 ? '+' : ''}${player.dk_over_odds}</span>
+            <span class="odd-pill odd-under">U ${player.dk_under_odds > 0 ? '+' : ''}${player.dk_under_odds}</span>
+          </div>
+        </div>
+        <div class="book-source">Powered by <a href="https://dgfantasy.com" target="_blank">DGFantasy.com</a></div>
+      </div>
+      ${inputHtml}
+    </div>
+    <a href="https://dgfantasy.com" target="_blank" class="cta-card">
+      <div><div class="cta-text">Find tonight's +EV player props</div><div class="cta-sub">Daily Grind Fantasy · AI Slip Generator & Optimizer</div></div>
+      <div class="cta-arrow">→</div>
+    </a>
+    <div class="last5-card">
+      <div class="section-title">${player.player_name} — Last 5 Games</div>
+      <div class="last5-row">${last5Html}</div>
+    </div>
+  `;
+
+  if(player.player_image) {
+    const av = document.getElementById('player-av');
+    if(av) av.innerHTML = `<img src="${player.player_image}" onerror="this.parentElement.innerHTML='${getInitials(player.player_name)}'"><div class="pos-badge">${player.player_pos || 'G'}</div>`;
+  }
+}
+
+function renderResult(player, pick) {
+  if(!pick) {
+    document.getElementById('today-content').innerHTML = `
+      <div class="no-games">
+        <div class="no-games-icon">⏰</div>
+        <div class="no-games-title">You didn't pick today</div>
+        <div class="no-games-sub">${player.player_name} scored ${player.actual_score} points.<br>Come back tomorrow to play!</div>
+      </div>`;
+    return;
+  }
+
+  const actual = player.actual_score;
+  const dist = Math.abs(actual - pick.line_submitted);
+  const pts = Math.max(0, 100 - dist);
+  const ptsClass = pts >= 95 ? 'great' : pts >= 85 ? 'good' : 'ok';
+
+  resultData = { pts, dist, pick, player };
+  updateHeaderBadge();
+
+  const crowdAvg = 26.2; // Will be real avg from DB later
+  const maxVal = Math.max(actual, pick.line_submitted, crowdAvg) + 2;
+  const yourPct = Math.round((pick.line_submitted / maxVal) * 100);
+  const avgPct = Math.round((crowdAvg / maxVal) * 100);
+  const beatPct = 73; // Will be real from DB later
+
+  document.getElementById('today-content').innerHTML = `
+    <div class="card">
+      <div class="card-header-row">
+        <div class="card-label">${formatDate(player.date)} · NBA</div>
+        <div class="final-badge">Final</div>
+      </div>
+      <div class="player-hero">
+        <div class="player-avatar sm">${getInitials(player.player_name)}</div>
+        <div>
+          <div class="player-name sm">${player.player_name}</div>
+          <div class="player-meta" style="margin-bottom:0">${player.player_team} · vs ${player.opponent}</div>
+        </div>
+      </div>
+      <div class="numbers-row">
+        <div class="num-box yours-box"><div class="num-label">Your Line</div><div class="num-val yours">${pick.line_submitted.toFixed(1)}</div></div>
+        <div class="vs-label">VS</div>
+        <div class="num-box actual-box"><div class="num-label">Actual Score</div><div class="num-val actual">${actual}</div></div>
+      </div>
+      <div class="result-details">
+        <div class="distance-row">
+          <div class="distance-label">Distance from actual</div>
+          <div class="distance-val">${dist.toFixed(1)} off</div>
+        </div>
+        <div class="points-earned ${ptsClass}">
+          <div class="points-label">Points Earned Today</div>
+          <div class="points-val ${ptsClass}">${pts.toFixed(1)}</div>
+          <div class="points-sub">100 − ${dist.toFixed(1)} = ${pts.toFixed(1)} pts · Best possible: 99.5</div>
+        </div>
+        <div class="crowd-card">
+          <div class="crowd-title">How you compared</div>
+          <div class="crowd-row"><div class="crowd-who">Your line</div><div class="crowd-bar-wrap"><div class="crowd-bar you" style="width:${yourPct}%"></div></div><div class="crowd-num">${pick.line_submitted.toFixed(1)}</div></div>
+          <div class="crowd-row"><div class="crowd-who">Crowd avg</div><div class="crowd-bar-wrap"><div class="crowd-bar avg" style="width:${avgPct}%"></div></div><div class="crowd-num">${crowdAvg}</div></div>
+          <div class="crowd-row"><div class="crowd-who">Actual</div><div class="crowd-bar-wrap"><div class="crowd-bar actual-bar" style="width:100%"></div></div><div class="crowd-num">${actual}</div></div>
+          <div class="beat-crowd">You were closer than ${beatPct}% of players today 🎯</div>
+        </div>
+      </div>
+    </div>
+    <div class="lb-move-card">
+      <div class="lb-move-title">Monthly Score Updated</div>
+      <div class="lb-move-row">
+        <div style="flex:1">
+          <div class="lb-move-label">+${pts.toFixed(1)} points added</div>
+          <div class="lb-move-sub">Total: ${((currentUserData?.alltime_score || 0)).toFixed(1)} pts all-time</div>
+        </div>
+      </div>
+    </div>
+    <a href="https://dgfantasy.com" target="_blank" class="cta-card">
+      <div><div class="cta-text">Find tomorrow's +EV player props</div><div class="cta-sub">Daily Grind Fantasy · AI Slip Generator & Optimizer</div></div>
+      <div class="cta-arrow">→</div>
+    </a>
+    <button class="share-btn" onclick="generateShare()">
+      <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+      SHARE MY RESULT
+    </button>
+  `;
+
+  // Populate share card
+  document.getElementById('sc-date').textContent = `${formatDate(player.date)} · NBA`;
+  document.getElementById('sc-player').textContent = player.player_name;
+  document.getElementById('sc-matchup').textContent = `${player.player_team} vs ${player.opponent}`;
+  document.getElementById('sc-your-line').textContent = pick.line_submitted.toFixed(1);
+  document.getElementById('sc-actual').textContent = actual;
+  document.getElementById('sc-dist').textContent = dist.toFixed(1) + ' off';
+  document.getElementById('sc-pts').textContent = pts.toFixed(1) + ' pts';
+}
 
 // ---- LINE INPUT ----
 function adjustLine(dir) {
   lineValue = Math.max(0.5, lineValue + dir);
   const display = document.getElementById('line-display');
-  display.textContent = lineValue.toFixed(1);
-  display.classList.add('active');
-  setTimeout(() => display.classList.remove('active'), 300);
+  if(display) {
+    display.textContent = lineValue.toFixed(1);
+    display.classList.add('active');
+    setTimeout(() => display.classList.remove('active'), 300);
+  }
 }
 
-function submitLine() {
-  const val = lineValue.toFixed(1);
-  document.getElementById('submitted-num').textContent = val;
-  document.getElementById('input-wrap').style.display = 'none';
-  document.getElementById('submitted-wrap').style.display = 'block';
+async function submitLine() {
+  if(!todayPlayer || !currentUser) return;
+  const btn = document.getElementById('submit-btn');
+  if(btn) btn.disabled = true;
+
+  const today = new Date().toISOString().split('T')[0];
+  const month = today.slice(0,7);
+
+  // Save pick
+  const { error } = await sb.from('picks').upsert({
+    user_id: currentUser.id,
+    date: today,
+    player_name: todayPlayer.player_name,
+    line_submitted: lineValue
+  }, { onConflict: 'user_id,date' });
+
+  if(error) {
+    if(btn) btn.disabled = false;
+    alert('Error saving pick. Please try again.');
+    return;
+  }
+
+  // Update monthly score entry
+  await sb.from('monthly_scores').upsert({
+    user_id: currentUser.id,
+    month,
+    score: 0,
+    picks_count: 0
+  }, { onConflict: 'user_id,month', ignoreDuplicates: true });
+
+  todayPick = { line_submitted: lineValue };
+
+  // Show submitted state
+  const inputWrap = document.getElementById('input-wrap');
+  const submittedWrap = document.getElementById('submitted-wrap');
+  const submittedNum = document.getElementById('submitted-num');
+  if(inputWrap) inputWrap.style.display = 'none';
+  if(submittedWrap) submittedWrap.style.display = 'block';
+  if(submittedNum) submittedNum.textContent = lineValue.toFixed(1);
 }
 
 function changeLine() {
-  document.getElementById('input-wrap').style.display = 'block';
-  document.getElementById('submitted-wrap').style.display = 'none';
+  const inputWrap = document.getElementById('input-wrap');
+  const submittedWrap = document.getElementById('submitted-wrap');
+  if(inputWrap) inputWrap.style.display = 'block';
+  if(submittedWrap) submittedWrap.style.display = 'none';
 }
 
-// ---- RESULT ----
-function showResult() {
-  const val = lineValue.toFixed(1);
-  const actual = 31;
-  const dist = Math.abs(actual - lineValue);
-  const pts = Math.max(0, 100 - dist);
-
-  document.getElementById('result-your-line').textContent = val;
-  document.getElementById('result-distance').textContent = dist.toFixed(1) + ' off';
-  document.getElementById('result-pts').textContent = pts.toFixed(1);
-  document.getElementById('result-pts-sub').textContent = `100 − ${dist.toFixed(1)} = ${pts.toFixed(1)} pts · Best possible: 99.5`;
-  document.getElementById('crowd-your').textContent = val;
-  document.getElementById('sc-your-line').textContent = val;
-  document.getElementById('sc-dist').textContent = dist.toFixed(1) + ' off';
-  document.getElementById('sc-pts').textContent = pts.toFixed(1) + ' pts';
-
-  // Show result tab, update header badge
-  ['today','result','leaderboard','history'].forEach(t => {
-    const el = document.getElementById(`tab-${t}`);
-    if(el) el.style.display = t === 'result' ? 'block' : 'none';
-  });
-  document.getElementById('nav-today').className = 'nav-item active';
-  document.getElementById('header-badge').innerHTML = `<div class="score-chip">${pts.toFixed(1)} PTS</div>`;
-  document.getElementById('scroll-area').scrollTop = 0;
-  currentTab = 'result';
-}
-
-// ---- TABS ----
-function showTab(tab) {
-  ['today','result','leaderboard','history'].forEach(t => {
-    const el = document.getElementById(`tab-${t}`);
-    if(el) el.style.display = t === tab ? 'block' : 'none';
-  });
-  ['today','leaderboard','history'].forEach(t => {
-    document.getElementById(`nav-${t}`).className = 'nav-item' + (t === tab ? ' active' : '');
-  });
-
-  // Reset header badge
-  if(tab !== 'result') {
-    document.getElementById('header-badge').innerHTML = '<div class="streak-badge">🔥 5 days</div>';
-  }
-
-  document.getElementById('scroll-area').scrollTop = 0;
-  currentTab = tab;
+function isPickLocked(player) {
+  if(!player.lock_time) return false;
+  return new Date() >= new Date(player.lock_time);
 }
 
 // ---- LEADERBOARD ----
+async function loadLeaderboard() {
+  const month = new Date().toISOString().slice(0,7);
+  const monthLabel = new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
+  document.getElementById('prize-month-label').textContent = monthLabel;
+  document.getElementById('btn-month').textContent = monthLabel;
+
+  // Monthly
+  const { data: monthly } = await sb
+    .from('monthly_scores')
+    .select('score, picks_count, users(username)')
+    .eq('month', month)
+    .gte('picks_count', 1)
+    .order('score', { ascending: false })
+    .limit(20);
+
+  renderLbList('lb-month-list', monthly, month);
+
+  // All-time
+  const { data: alltime } = await sb
+    .from('users')
+    .select('username, alltime_score, current_streak')
+    .order('alltime_score', { ascending: false })
+    .limit(20);
+
+  renderAlltimeLb('lb-alltime-list', alltime);
+}
+
+function renderLbList(elId, data, month) {
+  const el = document.getElementById(elId);
+  if(!data || data.length === 0) {
+    el.innerHTML = '<div class="lb-empty">No picks yet this month. Be the first!</div>';
+    return;
+  }
+  const rankIcons = ['g','s','b'];
+  el.innerHTML = data.map((row, i) => {
+    const rank = i + 1;
+    const username = row.users?.username || 'Unknown';
+    const isMe = currentUserData?.username === username;
+    const initials = username.slice(0,2).toUpperCase();
+    return `
+      <div class="lb-row ${isMe ? 'me' : ''}">
+        <div class="lb-rank ${rankIcons[i] || ''}">${rank}</div>
+        <div class="lb-av ${isMe ? 'me' : ''}">${initials}</div>
+        <div class="lb-info">
+          <div class="lb-name ${isMe ? 'me' : ''}">${username}${isMe ? ' <span style="font-size:10px;opacity:0.6">you</span>' : ''}</div>
+          <div class="lb-meta">${row.picks_count} pick${row.picks_count !== 1 ? 's' : ''}</div>
+        </div>
+        <div>
+          <div class="lb-pts ${isMe ? 'me' : ''}">${(row.score || 0).toFixed(1)}</div>
+          <div class="lb-pts-label">pts</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderAlltimeLb(elId, data) {
+  const el = document.getElementById(elId);
+  if(!data || data.length === 0) {
+    el.innerHTML = '<div class="lb-empty">No scores yet.</div>';
+    return;
+  }
+  const rankIcons = ['g','s','b'];
+  el.innerHTML = data.map((row, i) => {
+    const rank = i + 1;
+    const isMe = currentUserData?.username === row.username;
+    const initials = (row.username || '?').slice(0,2).toUpperCase();
+    return `
+      <div class="lb-row ${isMe ? 'me' : ''}">
+        <div class="lb-rank ${rankIcons[i] || ''}">${rank}</div>
+        <div class="lb-av ${isMe ? 'me' : ''}">${initials}</div>
+        <div class="lb-info">
+          <div class="lb-name ${isMe ? 'me' : ''}">${row.username}${isMe ? ' <span style="font-size:10px;opacity:0.6">you</span>' : ''}</div>
+          <div class="lb-meta">Best streak: ${row.current_streak || 0} days</div>
+        </div>
+        <div>
+          <div class="lb-pts ${isMe ? 'me' : ''}">${(row.alltime_score || 0).toFixed(1)}</div>
+          <div class="lb-pts-label">pts</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
 function showLb(view) {
-  document.getElementById('lb-month').style.display = view === 'month' ? 'block' : 'none';
-  document.getElementById('lb-alltime').style.display = view === 'alltime' ? 'block' : 'none';
+  document.getElementById('lb-month-view').style.display = view === 'month' ? 'block' : 'none';
+  document.getElementById('lb-alltime-view').style.display = view === 'alltime' ? 'block' : 'none';
   document.getElementById('btn-month').className = 'lb-btn' + (view === 'month' ? ' active' : '');
   document.getElementById('btn-alltime').className = 'lb-btn' + (view === 'alltime' ? ' active' : '');
+}
+
+// ---- HISTORY ----
+async function loadHistory() {
+  const streak = currentUserData?.current_streak || 0;
+  const trialUnlocked = currentUserData?.trial_unlocked || false;
+
+  // Streak bar
+  const streakEl = document.getElementById('history-streak');
+  if(trialUnlocked) {
+    streakEl.innerHTML = `
+      <div class="streak-unlocked">
+        <div class="streak-unlocked-title">🎉 Free Trial Unlocked!</div>
+        <div class="streak-unlocked-sub">You earned a free 7-day Daily Grind Fantasy trial by playing 7 days in a row.</div>
+        <a href="https://dgfantasy.com" target="_blank" class="streak-unlocked-cta">Claim Your Free Trial →</a>
+      </div>`;
+  } else if(streak > 0) {
+    const daysLeft = 7 - streak;
+    streakEl.innerHTML = `
+      <div class="streak-bar">
+        <div class="streak-title">🔥 ${streak} Day Streak${daysLeft > 0 ? ` — ${daysLeft} Day${daysLeft !== 1 ? 's' : ''} to Go` : '!'}</div>
+        <div class="streak-sub">${daysLeft > 0 ? `Play ${daysLeft} more day${daysLeft !== 1 ? 's' : ''} in a row to unlock a free 7-day Daily Grind Fantasy trial.` : 'Keep it going!'}</div>
+        <a href="https://dgfantasy.com" target="_blank" class="streak-cta">Try DGFantasy Free →</a>
+      </div>`;
+  } else {
+    streakEl.innerHTML = `
+      <div class="streak-bar">
+        <div class="streak-title">Start Your Streak</div>
+        <div class="streak-sub">Play 7 days in a row to unlock a free Daily Grind Fantasy trial.</div>
+        <a href="https://dgfantasy.com" target="_blank" class="streak-cta">Try DGFantasy →</a>
+      </div>`;
+  }
+
+  // Picks history
+  const { data: picks } = await sb
+    .from('picks')
+    .select('*')
+    .eq('user_id', currentUser.id)
+    .order('date', { ascending: false })
+    .limit(30);
+
+  const histEl = document.getElementById('history-list');
+  if(!picks || picks.length === 0) {
+    histEl.innerHTML = '<div class="hist-empty">No picks yet. Play today!</div>';
+    return;
+  }
+
+  histEl.innerHTML = picks.map(pick => {
+    const d = new Date(pick.date + 'T12:00:00');
+    const dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const [month, day] = dateStr.split(' ');
+
+    if(!pick.resulted) {
+      return `
+        <div class="hist-row">
+          <div class="hist-date">${month}<br>${day}</div>
+          <div class="hist-player"><div class="hist-name">${pick.player_name}</div><div class="hist-meta">Pending result</div></div>
+          <div class="hist-nums">
+            <div class="hist-num"><div class="hist-num-val">${pick.line_submitted.toFixed(1)}</div><div class="hist-num-label">your line</div></div>
+            <div class="hist-divider">→</div>
+            <div class="hist-num"><div class="hist-num-val">—</div><div class="hist-num-label">actual</div></div>
+          </div>
+          <div class="hist-score"><div class="hist-score-num ok">—</div><div class="hist-score-label">pts</div></div>
+        </div>`;
+    }
+
+    const scoreClass = pick.score >= 95 ? 'great' : pick.score >= 85 ? 'good' : 'ok';
+    return `
+      <div class="hist-row">
+        <div class="hist-date">${month}<br>${day}</div>
+        <div class="hist-player"><div class="hist-name">${pick.player_name}</div></div>
+        <div class="hist-nums">
+          <div class="hist-num"><div class="hist-num-val">${pick.line_submitted.toFixed(1)}</div><div class="hist-num-label">your line</div></div>
+          <div class="hist-divider">→</div>
+          <div class="hist-num"><div class="hist-num-val actual">${pick.distance !== null ? (pick.line_submitted + (pick.score < 100 ? (pick.line_submitted > 0 ? pick.distance : -pick.distance) : 0)).toFixed(0) : '—'}</div><div class="hist-num-label">actual</div></div>
+        </div>
+        <div class="hist-score"><div class="hist-score-num ${scoreClass}">${pick.score?.toFixed(1) || '—'}</div><div class="hist-score-label">pts</div></div>
+      </div>`;
+  }).join('');
+}
+
+// ---- PROFILE ----
+async function loadProfile() {
+  if(!currentUserData) await loadUserData();
+  const u = currentUserData;
+  if(!u) return;
+
+  document.getElementById('profile-avatar').textContent = u.username.slice(0,2).toUpperCase();
+  document.getElementById('profile-username').textContent = u.username;
+  document.getElementById('profile-email').textContent = currentUser.email;
+  document.getElementById('stat-streak').textContent = u.current_streak || 0;
+  document.getElementById('stat-alltime').textContent = (u.alltime_score || 0).toFixed(0);
+
+  const { count } = await sb.from('picks').select('*', { count: 'exact', head: true }).eq('user_id', currentUser.id);
+  document.getElementById('stat-picks').textContent = count || 0;
 }
 
 // ---- SHARE ----
@@ -695,28 +1128,20 @@ async function generateShare() {
     const card = document.getElementById('share-card');
     wrap.style.position = 'static';
     wrap.style.left = '0';
-
     const canvas = await html2canvas(card, { backgroundColor: '#0b0b0f', scale: 2, useCORS: true, logging: false });
-
     wrap.style.position = 'fixed';
     wrap.style.left = '-9999px';
-
     canvas.toBlob(async (blob) => {
       overlay.style.display = 'none';
-      if (navigator.share && navigator.canShare) {
+      if(navigator.share && navigator.canShare) {
         const file = new File([blob], 'be-the-book.png', { type: 'image/png' });
-        if (navigator.canShare({ files: [file] })) {
-          try {
-            await navigator.share({ files: [file], title: 'Be The Book', text: `LeBron scored 31. I had ${lineValue.toFixed(1)}. Can you beat me? Play at bethebook.gg` });
-            return;
-          } catch(e) {}
+        if(navigator.canShare({ files: [file] })) {
+          try { await navigator.share({ files: [file], title: 'Be The Book', text: `Can you beat my line? Play at bethebook.gg` }); return; } catch(e) {}
         }
       }
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url;
-      a.download = 'be-the-book.png';
-      a.click();
+      a.href = url; a.download = 'be-the-book.png'; a.click();
       URL.revokeObjectURL(url);
     }, 'image/png');
   } catch(err) {
@@ -724,6 +1149,19 @@ async function generateShare() {
     alert('Could not generate share card.');
   }
 }
+
+// ---- UTILS ----
+function getInitials(name) {
+  return (name || '?').split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+}
+
+function formatDate(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00');
+  return d.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+}
+
+// ---- START ----
+init();
 </script>
 </body>
 </html>

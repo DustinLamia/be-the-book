@@ -1085,7 +1085,10 @@ async function loadHistory() {
     return;
   }
 
-  histEl.innerHTML = picks.map(pick => {
+  // Store picks globally for modal access
+  window._histPicks = picks;
+
+  histEl.innerHTML = picks.map((pick, idx) => {
     const d = new Date(pick.date + 'T12:00:00');
     const dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     const [month, day] = dateStr.split(' ');
@@ -1106,9 +1109,8 @@ async function loadHistory() {
 
     const scoreClass = pick.score >= 95 ? 'great' : pick.score >= 85 ? 'good' : 'ok';
     const actualScore = pick.score !== null && pick.distance !== null ? (100 - pick.score + pick.line_submitted).toFixed(0) : '—';
-    const pickJson = encodeURIComponent(JSON.stringify(pick));
     return `
-      <div class="hist-row" onclick="showHistModal(${pickJson})">
+      <div class="hist-row" onclick="showHistModal(${idx})">
         <div class="hist-date">${month}<br>${day}</div>
         <div class="hist-player"><div class="hist-name">${pick.player_name}</div><div class="hist-meta">Tap to view result</div></div>
         <div class="hist-nums">
@@ -1146,8 +1148,9 @@ async function loadProfile() {
 }
 
 // ---- SHARE ----
-function showHistModal(pickEncoded) {
-  const pick = typeof pickEncoded === 'string' ? JSON.parse(decodeURIComponent(pickEncoded)) : pickEncoded;
+function showHistModal(idx) {
+  const pick = window._histPicks[idx];
+  if(!pick) return;
   if(!pick.resulted) return;
 
   const actual = (100 - pick.score + pick.line_submitted);
@@ -1177,7 +1180,7 @@ function showHistModal(pickEncoded) {
         <div class="points-val ${ptsClass}" style="font-size:48px;">${pts.toFixed(1)}</div>
         <div class="points-sub">${dist.toFixed(1)} off · 100 − ${dist.toFixed(1)} = ${pts.toFixed(1)} pts</div>
       </div>
-      <button class="share-btn" style="margin-bottom:10px;" onclick="generateHistShare(${JSON.stringify(pick).replace(/"/g, '&quot;')}, ${actual.toFixed(0)})">
+      <button class="share-btn" style="margin-bottom:10px;" onclick="generateHistShare(${idx}, ${actual.toFixed(0)})">
         <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
         SAVE TO PHOTOS
       </button>
@@ -1193,8 +1196,9 @@ function closeHistModal() {
   if(overlay) overlay.remove();
 }
 
-async function generateHistShare(pick, actual) {
-  // Update share card with history pick data
+async function generateHistShare(idx, actual) {
+  const pick = window._histPicks[idx];
+  if(!pick) return;
   document.getElementById('sc-date').textContent = formatDate(pick.date) + ' · NBA';
   document.getElementById('sc-player').textContent = pick.player_name;
   document.getElementById('sc-matchup').textContent = '';
